@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EUREKA — Visual Mode (Voice)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #020812;
+            --br: rgba(255, 255, 255, .1);
+            --ac: #60a5fa;
+            --pr: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: #f0f8ff;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--br);
+            background: rgba(2, 8, 18, .95);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            background: rgba(96, 165, 250, .1);
+            border: 1px solid rgba(96, 165, 250, .3);
+            border-radius: 20px;
+            font-size: .72rem;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        .back {
+            color: rgba(255, 255, 255, .4);
+            font-size: .8rem;
+            text-decoration: none;
+            border: 1px solid var(--br);
+            padding: 5px 12px;
+            border-radius: 7px;
+        }
+
+        /* Orb */
+        .orb-wrap {
+            display: flex;
+            justify-content: center;
+            padding: 40px 24px 20px;
+        }
+
+        .orb {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(96, 165, 250, .4) 0%, rgba(59, 130, 246, .1) 60%, transparent 100%);
+            border: 2px solid rgba(96, 165, 250, .4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            position: relative;
+            transition: all .3s;
+            box-shadow: 0 0 40px rgba(96, 165, 250, .2);
+        }
+
+        .orb:hover {
+            box-shadow: 0 0 60px rgba(96, 165, 250, .4);
+        }
+
+        .orb.listening {
+            animation: pulse 1.2s ease-in-out infinite;
+            border-color: #60a5fa;
+            box-shadow: 0 0 60px rgba(96, 165, 250, .6);
+        }
+
+        .orb.speaking {
+            animation: speak-pulse 0.6s ease-in-out infinite;
+            border-color: #34d399;
+            box-shadow: 0 0 60px rgba(52, 211, 153, .6);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes speak-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .orb-ripple {
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            border: 2px solid rgba(96, 165, 250, .3);
+            animation: ripple 2s linear infinite;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: .5;
+            }
+
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        .status-text {
+            text-align: center;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, .5);
+            margin-bottom: 8px;
+        }
+
+        .transcript {
+            text-align: center;
+            font-size: .85rem;
+            color: #60a5fa;
+            min-height: 20px;
+            margin-bottom: 12px;
+            padding: 0 24px;
+        }
+
+        /* Commands panel */
+        .commands {
+            max-width: 600px;
+            margin: 0 auto 32px;
+            padding: 0 20px;
+        }
+
+        .cmd-title {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: rgba(255, 255, 255, .3);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .cmd-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .cmd {
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--br);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: .82rem;
+        }
+
+        .cmd-phrase {
+            font-weight: 700;
+            color: var(--ac);
+        }
+
+        .cmd-desc {
+            color: rgba(255, 255, 255, .4);
+            font-size: .75rem;
+            margin-top: 2px;
+        }
+
+        /* Content */
+        .content-box {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--br);
+            border-radius: 18px;
+            padding: 28px;
+            font-size: 1.25rem;
+            line-height: 2;
+            display: none;
+        }
+
+        .content-card.on {
+            display: block;
+        }
+
+        .chapter-info {
+            font-size: .78rem;
+            color: rgba(255, 255, 255, .3);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+
+        /* Quiz in voice mode */
+        .voice-quiz {
+            max-width: 640px;
+            margin: 20px auto;
+            padding: 0 20px;
+            display: none;
+        }
+
+        .voice-quiz.on {
+            display: block;
+        }
+
+        .vq-card {
+            background: rgba(59, 130, 246, .07);
+            border: 1px solid rgba(59, 130, 246, .25);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 14px;
+        }
+
+        .vq-q {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .vq-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .vq-opt {
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--br);
+            border-radius: 11px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all .2s;
+        }
+
+        .vq-opt.correct {
+            border-color: #00e676;
+            color: #00e676;
+        }
+
+        .vq-opt.wrong {
+            border-color: #f87171;
+            color: #f87171;
+        }
+
+        .vq-score {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            padding: 24px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="badge">👁️ Visual Mode</div>
+        <a class="back" href="/student">← Home</a>
+    </header>
+
+    <div class="orb-wrap">
+        <div class="orb" id="orb" onclick="toggleListen()">
+            <div class="orb-ripple"></div>
+            🎙️
+        </div>
+    </div>
+
+    <p class="status-text" id="status-text">Click the orb to start listening</p>
+    <p class="transcript" id="transcript"></p>
+
+    <div class="commands">
+        <div class="cmd-title">Voice Commands</div>
+        <div class="cmd-grid">
+            <div class="cmd">
+                <div class="cmd-phrase">"Grade [6-12]"</div>
+                <div class="cmd-desc">Select a grade</div>
+            </div>
+            <div class="cmd">
+                <div class="cmd-phrase">"Subject [name]"</div>
+                <div class="cmd-desc">Select a subject</div>
+            </div>
+            <div class="cmd">
+                <div class="cmd-phrase">"Chapter [name]"</div>
+                <div class="cmd-desc">Load a chapter</div>
+            </div>
+            <div class="cmd">
+                <div class="cmd-phrase">"Read"</div>
+                <div class="cmd-desc">Read the content aloud</div>
+            </div>
+            <div class="cmd">
+                <div class="cmd-phrase">"Quiz"</div>
+                <div class="cmd-desc">Start a quiz</div>
+            </div>
+            <div class="cmd">
+                <div class="cmd-phrase">"Flashcards"</div>
+                <div class="cmd-desc">Start flashcards</div>
+            </div>
+            <div class="cmd">
+                <div class="cmd-phrase">"Stop"</div>
+                <div class="cmd-desc">Stop speaking</div>
+            </div>
+            <div class="cmd">
+                <div class="cmd-phrase">"Home"</div>
+                <div class="cmd-desc">Go to homepage</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <div class="content-card" id="content-card">
+            <div class="chapter-info" id="chapter-info"></div>
+            <div id="content-text"></div>
+        </div>
+    </div>
+
+    <div class="voice-quiz" id="vq-panel">
+        <div id="vq-questions"></div>
+        <div class="vq-score" id="vq-score"></div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:8001';
+        const user = localStorage.getItem('eureka_user') || 'Student';
+        if (!localStorage.getItem('eureka_token')) window.location.href = '/login';
+
+        let recognition = null, synth = window.speechSynthesis;
+        let listening = false, currentGrade = null, currentSubject = null, currentChapter = null, rawContent = '';
+        let quizData = [], quizAnswers = [], currentQIdx = 0, correctCount = 0;
+        let fcData = [], fcIdx = 0;
+
+        function speak(text) {
+            synth.cancel();
+            const orb = document.getElementById('orb');
+            orb.classList.add('speaking'); orb.textContent = '🔊';
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 0.9; u.pitch = 1;
+            u.onend = () => { orb.classList.remove('speaking'); orb.innerHTML = '<div class="orb-ripple"></div>🎙️'; if (listening) orb.classList.add('listening'); };
+            synth.speak(u);
+        }
+
+        function setStatus(t) { document.getElementById('status-text').textContent = t; }
+        function setTranscript(t) { document.getElementById('transcript').textContent = t; }
+
+        function toggleListen() {
+            if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { speak('Sorry, your browser does not support voice recognition. Please use Chrome.'); return; }
+            listening = !listening;
+            const orb = document.getElementById('orb');
+            if (listening) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = true; recognition.interimResults = true; recognition.lang = 'en-IN';
+                recognition.onresult = (e) => {
+                    const interim = Array.from(e.results).filter(r => !r.isFinal).map(r => r[0].transcript).join('');
+                    const final = Array.from(e.results).filter(r => r.isFinal).map(r => r[0].transcript).join('');
+                    setTranscript(interim);
+                    if (final) { setTranscript(final); handleCommand(final.toLowerCase().trim()); }
+                };
+                recognition.onerror = (e) => { if (e.error !== 'no-speech') { speak('Microphone error. Please try again.'); } };
+                recognition.start();
+                orb.classList.add('listening'); orb.innerHTML = '<div class="orb-ripple"></div>🎙️';
+                setStatus('Listening… say a command');
+                speak('Hello! I am EUREKA. Say a grade, subject, and chapter name to get started. Say Help to hear all commands.');
+            } else {
+                recognition && recognition.stop();
+                orb.classList.remove('listening'); orb.innerHTML = '<div class="orb-ripple"></div>🎙️';
+                setStatus('Click the orb to start listening'); setTranscript('');
+                synth.cancel();
+            }
+        }
+
+        function handleCommand(cmd) {
+            // Home
+            if (cmd.includes('home') || cmd.includes('go back')) { window.location.href = '/student'; return; }
+            // Stop
+            if (cmd.includes('stop') || cmd.includes('quiet')) { synth.cancel(); setStatus('Stopped.'); return; }
+            // Help
+            if (cmd.includes('help')) { speak('You can say: Grade 10, Subject Science, Chapter Life Processes, Read, Quiz, Flashcards, Stop, or Home.'); return; }
+            // Grade
+            const gradeMatch = cmd.match(/grade\s*(\d{1,2})/i) || cmd.match(/class\s*(\d{1,2})/i);
+            if (gradeMatch) { const g = +gradeMatch[1]; if (g >= 6 && g <= 12) { currentGrade = g; speak(`Grade ${g} selected. Now say a subject name.`); setStatus(`Grade: ${g}`); } return; }
+            // Subject detection
+            const subjects = ['mathematics', 'math', 'science', 'social science', 'english', 'hindi', 'physics', 'chemistry', 'biology'];
+            for (const s of subjects) { if (cmd.includes(s)) { currentSubject = s.charAt(0).toUpperCase() + s.slice(1); if (currentSubject === 'Math') currentSubject = 'Mathematics'; speak(`Subject ${currentSubject} selected. Now say a chapter name.`); setStatus(`Grade: ${currentGrade || '?'}, Subject: ${currentSubject}`); return; } }
+            // Quiz
+            if (cmd.includes('quiz') && rawContent) { startVoiceQuiz(); return; }
+            // Flashcards
+            if (cmd.includes('flashcard') && rawContent) { startVoiceFlashcards(); return; }
+            // Read
+            if (cmd.includes('read') && rawContent) { speak(rawContent.substring(0, 1500)); return; }
+            // Next flashcard
+            if ((cmd.includes('next') || cmd.includes('flip')) && fcData.length > 0) { fcIdx = (fcIdx + 1) % fcData.length; const fc = fcData[fcIdx]; speak(`Question: ${fc.question}. Answer: ${fc.answer}`); return; }
+            // Chapter — try to match from remaining text
+            if (currentGrade && currentSubject && cmd.length > 3) {
+                const chapter = cmd.replace(/chapter|lesson/gi, '').trim();
+                loadChapter(chapter);
+            }
+        }
+
+        async function loadChapter(chapterHint) {
+            setStatus('Loading chapter…'); speak(`Loading chapter about ${chapterHint}. Please wait.`);
+            try {
+                const r = await fetch(`${API}/adapt`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `Summarise the topic "${chapterHint}" from ${currentSubject} Grade ${currentGrade} in 4-5 clear paragraphs. Use simple clear language suitable for a student.`, disability_profile: 'visual_impairment', grade: currentGrade, subject: currentSubject, chapter: chapterHint }) });
+                const d = await r.json();
+                rawContent = d.simplified || d.tts_script || d.visual_description || '';
+                currentChapter = chapterHint;
+                document.getElementById('chapter-info').textContent = `Grade ${currentGrade} · ${currentSubject} · ${chapterHint}`;
+                document.getElementById('content-text').textContent = rawContent;
+                document.getElementById('content-card').classList.add('on');
+                setStatus(`Loaded: ${chapterHint}`);
+                speak(`Chapter loaded. ${rawContent.substring(0, 600)} ... Say "Read" to hear the full chapter, "Quiz" to test yourself, or "Flashcards" to review.`);
+            } catch (e) { speak('Sorry, I could not load that chapter. Please try again.'); }
+        }
+
+        async function startVoiceQuiz() {
+            speak('Starting quiz. Generating questions…');
+            try {
+                const r = await fetch(`${API}/quiz/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: rawContent, chapter: currentChapter, subject: currentSubject, grade: currentGrade }) });
+                quizData = (await r.json()).questions || [];
+                currentQIdx = 0; correctCount = 0;
+                document.getElementById('vq-panel').classList.add('on');
+                document.getElementById('vq-score').style.display = 'none';
+                renderQuiz();
+                speak(`Quiz started. Question 1: ${quizData[0].question} Options: ${quizData[0].options.join(', ')}`);
+            } catch (e) { speak('Could not generate quiz.'); }
+        }
+        function renderQuiz() {
+            const qEl = document.getElementById('vq-questions');
+            qEl.innerHTML = quizData.map((q, i) => `<div class="vq-card"><div class="vq-q">${i + 1}. ${q.question}</div><div class="vq-opts">${q.options.map(o => `<div class="vq-opt" onclick="answerQ(this,'${o[0]}','${q.answer}',${i})">${o}</div>`).join('')}</div></div>`).join('');
+        }
+        async function answerQ(el, c, a, i) {
+            el.closest('.vq-opts').querySelectorAll('.vq-opt').forEach(o => o.onclick = null);
+            if (c === a) { el.classList.add('correct'); correctCount++; }
+            else { el.classList.add('wrong'); }
+            if (i === quizData.length - 1) {
+                setTimeout(() => {
+                    document.getElementById('vq-score').style.display = 'block';
+                    document.getElementById('vq-score').textContent = `Score: ${correctCount}/${quizData.length} 🎉`;
+                    speak(`Quiz complete. You got ${correctCount} out of ${quizData.length} correct. Well done!`);
+                    fetch(`${API}/quiz/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ student: user, grade: currentGrade, subject: currentSubject, chapter: currentChapter, score: correctCount, total: quizData.length }) }).catch(() => { });
+                }, 800);
+            }
+        }
+        async function startVoiceFlashcards() {
+            speak('Loading flashcards…');
+            try {
+                const r = await fetch(`${API}/flashcard/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: rawContent, chapter: currentChapter, subject: currentSubject, grade: currentGrade }) });
+                fcData = (await r.json()).flashcards || []; fcIdx = 0;
+                speak(`${fcData.length} flashcards ready. Card 1: ${fcData[0].question}. Answer: ${fcData[0].answer}. Say "Next" for the next card.`);
+            } catch (e) { speak('Could not load flashcards.'); }
+        }
+    </script>
+</body>
+
+</html>

@@ -1242,6 +1242,13 @@
       document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('theme-btn');
         if (btn) btn.textContent = saved === 'light' ? '☀️' : '🌙';
+        // ── Auto-load disability profile from login page ──
+        const savedProfile = localStorage.getItem('eureka_profile');
+        if (savedProfile) {
+          selectedProfile = savedProfile;
+          const btn = document.getElementById('p-' + savedProfile);
+          if (btn) btn.classList.add('selected');
+        }
       });
     })();
 

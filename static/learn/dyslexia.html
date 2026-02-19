@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EUREKA — Dyslexia Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <!-- OpenDyslexic from CDN -->
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/opendyslexic" />
+    <style>
+        :root {
+            --bg: #0d0a14;
+            --sur: rgba(255, 255, 255, .05);
+            --br: rgba(255, 255, 255, .1);
+            --tx: #f5f0ff;
+            --ac: #f87171;
+            --pr: #a855f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'OpenDyslexic', sans-serif;
+            background: var(--bg);
+            color: var(--tx);
+            min-height: 100vh;
+            line-height: 1.9;
+            letter-spacing: .03em;
+            word-spacing: .1em;
+        }
+
+        header {
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--br);
+            background: rgba(13, 10, 20, .95);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #a855f7, #f87171);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            background: rgba(248, 113, 113, .1);
+            border: 1px solid rgba(248, 113, 113, .3);
+            border-radius: 20px;
+            font-size: .72rem;
+            font-weight: 700;
+            color: #f87171;
+        }
+
+        .back {
+            color: rgba(255, 255, 255, .4);
+            font-size: .8rem;
+            text-decoration: none;
+            border: 1px solid var(--br);
+            padding: 5px 12px;
+            border-radius: 7px;
+        }
+
+        main {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 36px 20px 120px;
+        }
+
+        /* Selector */
+        .sel-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        select {
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid var(--br);
+            border-radius: 11px;
+            color: #fff;
+            font-size: .92rem;
+            outline: none;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        select option {
+            background: #1a1020;
+        }
+
+        .go-btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, var(--pr), #ec4899);
+            border: none;
+            border-radius: 11px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Content chunks — distinct pastel cards */
+        .chapter-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin-bottom: 28px;
+            color: #fff;
+        }
+
+        .chunk {
+            border-radius: 18px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            font-size: 1.15rem;
+            line-height: 2;
+            border-left: 4px solid;
+        }
+
+        .chunk:nth-child(odd) {
+            background: rgba(168, 85, 247, .1);
+            border-color: #a855f7;
+        }
+
+        .chunk:nth-child(even) {
+            background: rgba(248, 113, 113, .08);
+            border-color: #f87171;
+        }
+
+        .chunk-num {
+            font-size: .72rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            opacity: .5;
+            margin-bottom: 6px;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 14px 28px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all .2s;
+            font-family: 'OpenDyslexic', sans-serif;
+        }
+
+        .quiz-btn {
+            background: linear-gradient(135deg, #f87171, #ec4899);
+            color: #fff;
+        }
+
+        .flash-btn {
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid var(--br);
+            color: #fff;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, .4);
+            padding: 40px 0;
+            font-size: 1.1rem;
+        }
+
+        .spin {
+            width: 22px;
+            height: 22px;
+            border: 3px solid var(--br);
+            border-top-color: var(--ac);
+            border-radius: 50%;
+            animation: sp .7s linear infinite;
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* Quiz modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(5, 5, 16, .95);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal.on {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #120e1a;
+            border: 1px solid var(--br);
+            border-radius: 24px;
+            padding: 36px;
+            max-width: 600px;
+            width: 100%;
+            font-family: 'OpenDyslexic', sans-serif;
+        }
+
+        .q-prog {
+            font-size: .82rem;
+            color: rgba(255, 255, 255, .35);
+            margin-bottom: 8px;
+        }
+
+        .q-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 22px;
+            line-height: 1.7;
+        }
+
+        .q-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .q-opt {
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--br);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all .2s;
+            line-height: 1.7;
+        }
+
+        .q-opt:hover {
+            border-color: var(--ac);
+        }
+
+        .q-opt.selected {
+            border-color: var(--ac);
+            background: rgba(248, 113, 113, .1);
+        }
+
+        .q-opt.correct {
+            border-color: #00e676;
+            background: rgba(0, 230, 118, .1);
+            color: #00e676;
+        }
+
+        .q-opt.wrong {
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, .08);
+            color: #ff6b9d;
+        }
+
+        .next-btn {
+            padding: 12px 28px;
+            background: var(--ac);
+            border: none;
+            border-radius: 11px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'OpenDyslexic', sans-serif;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .score-big {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 12px 0;
+        }
+
+        /* Flashcard modal */
+        .fc-scene {
+            perspective: 1000px;
+            height: 230px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+
+        .fc-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform .5s;
+        }
+
+        .fc-card.flip {
+            transform: rotateY(180deg);
+        }
+
+        .fc-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.9;
+            backface-visibility: hidden;
+        }
+
+        .fc-front {
+            background: rgba(168, 85, 247, .15);
+            border: 1px solid rgba(168, 85, 247, .3);
+        }
+
+        .fc-back {
+            background: rgba(248, 113, 113, .12);
+            border: 1px solid rgba(248, 113, 113, .3);
+            transform: rotateY(180deg);
+        }
+
+        .fc-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .fc-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .95rem;
+            font-family: 'OpenDyslexic', sans-serif;
+        }
+
+        .fc-got {
+            background: rgba(0, 230, 118, .15);
+            border: 1px solid rgba(0, 230, 118, .3);
+            color: #00e676;
+        }
+
+        .fc-nope {
+            background: rgba(255, 107, 157, .1);
+            border: 1px solid rgba(255, 107, 157, .2);
+            color: #ff6b9d;
+        }
+
+        .fc-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .85rem;
+            color: rgba(255, 255, 255, .4);
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="badge">📖 Dyslexia Mode</div>
+        <a class="back" href="/student">← Home</a>
+    </header>
+    <main>
+        <div class="sel-row">
+            <select id="sel-grade">
+                <option value="">Grade</option>
+            </select>
+            <select id="sel-subject">
+                <option value="">Subject</option>
+            </select>
+            <select id="sel-chapter">
+                <option value="">Chapter</option>
+            </select>
+            <button class="go-btn" onclick="loadContent()">Load ▶</button>
+        </div>
+        <div id="content-area">
+            <p style="color:rgba(255,255,255,.35);font-size:1.1rem">Select grade, subject and chapter above.</p>
+        </div>
+    </main>
+
+    <!-- Quiz modal -->
+    <div class="modal" id="quiz-modal">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span class="q-prog" id="q-prog"></span>
+                <button onclick="closeQuiz()"
+                    style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1.2rem;cursor:pointer">✕</button>
+            </div>
+            <div class="q-text" id="q-text"></div>
+            <div class="q-options" id="q-options"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span id="q-feedback" style="font-size:.88rem"></span>
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()" style="display:none">Next →</button>
+            </div>
+            <div class="score-card" id="score-card" style="display:none">
+                <div class="score-big" id="score-big"></div>
+                <div style="color:rgba(255,255,255,.5);margin-bottom:20px" id="score-msg"></div>
+                <button onclick="closeQuiz()"
+                    style="padding:12px 28px;background:var(--ac);border:none;border-radius:11px;color:#fff;font-weight:700;cursor:pointer;font-family:'OpenDyslexic',sans-serif;">Done
+                    ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flashcard modal -->
+    <div class="modal" id="fc-modal">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:1rem;font-weight:700">🃏 Flashcards</span>
+                <button onclick="closeFc()"
+                    style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+            </div>
+            <div class="fc-nav"><span id="fc-num"></span><span>Tap card to flip</span></div>
+            <div class="fc-scene">
+                <div class="fc-card" id="fc-card" onclick="flipCard()">
+                    <div class="fc-face fc-front" id="fc-front"></div>
+                    <div class="fc-face fc-back" id="fc-back"></div>
+                </div>
+            </div>
+            <div class="fc-actions">
+                <button class="fc-btn fc-nope" onclick="fcNav(-1)">◀ Prev</button>
+                <button class="fc-btn fc-got" onclick="fcNav(1)">Next ▶</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:8001';
+        const user = localStorage.getItem('eureka_user') || 'Student';
+        if (!localStorage.getItem('eureka_token')) window.location.href = '/login';
+        const SUBJECTS = { lower: ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi'], senior: ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'English'] };
+        const CHAPTERS = { 'Mathematics': ['Real Numbers', 'Polynomials', 'Pair of Linear Equations', 'Quadratic Equations', 'Arithmetic Progressions', 'Triangles', 'Coordinate Geometry', 'Trigonometry', 'Circles', 'Statistics', 'Probability'], 'Science': ['Chemical Reactions', 'Acids Bases Salts', 'Metals Non-metals', 'Carbon Compounds', 'Life Processes', 'Control Coordination', 'Reproduction', 'Heredity', 'Light', 'Electricity', 'Magnetism'], 'Social Science': ['Nationalism Europe', 'Nationalism India', 'Globalisation', 'Resources', 'Agriculture', 'Power Sharing', 'Federalism'], 'English': ['A Letter to God', 'Nelson Mandela', 'Two Stories', 'Anne Frank', 'Glimpses of India'], 'Hindi': ['Surdas', 'Tulsidas', 'Nirala'], 'Physics': ['Electric Charges', 'Current Electricity', 'Magnetism', 'Ray Optics', 'Dual Nature', 'Atoms', 'Semiconductors'], 'Chemistry': ['Solid State', 'Solutions', 'Electrochemistry', 'Chemical Kinetics', 'Haloalkanes', 'Amines'], 'Biology': ['Reproduction', 'Genetics', 'Evolution', 'Human Health', 'Biotechnology', 'Ecosystem'] };
+        const gSel = document.getElementById('sel-grade'), sSel = document.getElementById('sel-subject'), cSel = document.getElementById('sel-chapter');
+        [6, 7, 8, 9, 10, 11, 12].forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = 'Grade ' + g; gSel.appendChild(o); });
+        gSel.addEventListener('change', () => { sSel.innerHTML = '<option value="">Subject</option>'; const g = +gSel.value; (g >= 11 ? SUBJECTS.senior : SUBJECTS.lower).forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sSel.appendChild(o); }); cSel.innerHTML = '<option value="">Chapter</option>'; });
+        sSel.addEventListener('change', () => { cSel.innerHTML = '<option value="">Chapter</option>'; (CHAPTERS[sSel.value] || []).forEach((c, i) => { const o = document.createElement('option'); o.value = c; o.textContent = (i + 1) + '. ' + c; cSel.appendChild(o); }); });
+
+        let rawContent = '', chunks = [], quizData = [], fcData = [], qIdx = 0, fcIdx = 0, correctCount = 0;
+
+        async function loadContent() {
+            const grade = +gSel.value, subject = sSel.value, chapter = cSel.value;
+            if (!grade || !subject || !chapter) { alert('Select all fields'); return; }
+            document.getElementById('content-area').innerHTML = '<div class="loading"><div class="spin"></div>Generating dyslexia-friendly content…</div>';
+            try {
+                const res = await fetch(`${API}/adapt`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `Explain "${chapter}" from ${subject} Grade ${grade}. Write 6-8 SHORT paragraphs. Each paragraph maximum 2 sentences. Use very simple words. Avoid complex vocabulary.`, disability_profile: 'dyslexia', grade, subject, chapter }) });
+                const data = await res.json();
+                rawContent = data.simplified || data.visual_description || '';
+                chunks = rawContent.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 20).slice(0, 8);
+                renderChunks(chapter);
+            } catch (e) { document.getElementById('content-area').innerHTML = `<p style="color:#f87171">Error: ${e.message}</p>`; }
+        }
+
+        function renderChunks(chapter) {
+            document.getElementById('content-area').innerHTML = `
+    <div class="chapter-title">📖 ${chapter}</div>
+    <div>${chunks.map((c, i) => `<div class="chunk"><div class="chunk-num">Part ${i + 1}</div>${c}</div>`).join('')}</div>
+    <div class="actions">
+      <button class="action-btn quiz-btn" onclick="startQuiz()">📝 Quiz Me!</button>
+      <button class="action-btn flash-btn" onclick="startFlashcards()">🃏 Flashcards</button>
+    </div>`;
+        }
+
+        async function startQuiz() {
+            document.getElementById('quiz-modal').classList.add('on');
+            document.getElementById('score-card').style.display = 'none';
+            document.getElementById('q-text').textContent = 'Generating quiz…';
+            document.getElementById('q-options').innerHTML = '';
+            correctCount = 0; qIdx = 0;
+            try {
+                const res = await fetch(`${API}/quiz/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: rawContent, chapter: cSel.value, subject: sSel.value, grade: +gSel.value }) });
+                quizData = (await res.json()).questions || [];
+                showQuestion();
+            } catch (e) { document.getElementById('q-text').textContent = 'Error: ' + e.message; }
+        }
+        function showQuestion() {
+            if (qIdx >= quizData.length) { showScore(); return; }
+            const q = quizData[qIdx];
+            document.getElementById('q-prog').textContent = `Q${qIdx + 1} of ${quizData.length}`;
+            document.getElementById('q-text').textContent = q.question;
+            document.getElementById('q-options').innerHTML = q.options.map(o => `<div class="q-opt" onclick="selectOpt(this,'${o[0]}','${q.answer}')">${o}</div>`).join('');
+            document.getElementById('q-feedback').textContent = '';
+            document.getElementById('next-btn').style.display = 'none';
+        }
+        function selectOpt(el, chosen, ans) {
+            document.querySelectorAll('.q-opt').forEach(o => o.onclick = null);
+            if (chosen === ans) { el.classList.add('correct'); document.getElementById('q-feedback').textContent = '✅ Correct!'; correctCount++; }
+            else { el.classList.add('wrong'); document.getElementById('q-feedback').textContent = '❌ Ans: ' + ans; document.querySelectorAll('.q-opt').forEach(o => { if (o.textContent.startsWith(ans)) o.classList.add('correct'); }); }
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+        function nextQuestion() { qIdx++; showQuestion(); }
+        async function showScore() {
+            ['q-options', 'q-text', 'q-prog'].forEach(id => document.getElementById(id)[id === 'q-options' ? 'innerHTML' : 'textContent'] = '');
+            document.getElementById('next-btn').style.display = 'none'; document.getElementById('q-feedback').textContent = '';
+            document.getElementById('score-big').textContent = `${correctCount} / ${quizData.length}`;
+            document.getElementById('score-msg').textContent = correctCount >= 4 ? 'Excellent work! 🏆' : 'Keep going! 🌟';
+            document.getElementById('score-card').style.display = 'block';
+            try { await fetch(`${API}/quiz/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ student: user, grade: +gSel.value, subject: sSel.value, chapter: cSel.value, score: correctCount, total: quizData.length }) }); } catch (e) { }
+        }
+        function closeQuiz() { document.getElementById('quiz-modal').classList.remove('on'); }
+        async function startFlashcards() {
+            document.getElementById('fc-modal').classList.add('on');
+            document.getElementById('fc-front').textContent = 'Loading…';
+            document.getElementById('fc-back').textContent = '';
+            fcIdx = 0;
+            try {
+                const res = await fetch(`${API}/flashcard/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: rawContent, chapter: cSel.value, subject: sSel.value, grade: +gSel.value }) });
+                fcData = (await res.json()).flashcards || [];
+                showCard();
+            } catch (e) { document.getElementById('fc-front').textContent = 'Error: ' + e.message; }
+        }
+        function showCard() { if (!fcData.length) return; document.getElementById('fc-card').classList.remove('flip'); document.getElementById('fc-front').textContent = fcData[fcIdx].question; document.getElementById('fc-back').textContent = fcData[fcIdx].answer; document.getElementById('fc-num').textContent = `${fcIdx + 1}/${fcData.length}`; }
+        function flipCard() { document.getElementById('fc-card').classList.toggle('flip'); }
+        function fcNav(d) { fcIdx = (fcIdx + d + fcData.length) % fcData.length; showCard(); }
+        function closeFc() { document.getElementById('fc-modal').classList.remove('on'); }
+    </script>
+</body>
+
+</html>

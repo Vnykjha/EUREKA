@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from rag.pedagogy_store import build_pedagogy_store
-from routers import adapt, concept_graph, feedback, ingest
+from routers import adapt, auth, concept_graph, feedback, flashcard, ingest, quiz
 
 
 @asynccontextmanager
@@ -44,6 +44,12 @@ app.include_router(ingest.router)
 app.include_router(adapt.router)
 app.include_router(feedback.router)
 app.include_router(concept_graph.router)
+app.include_router(auth.router)
+app.include_router(quiz.router)
+app.include_router(flashcard.router)
+
+# Serve static assets (JS, CSS, images)
+app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
 
 
 @app.get("/", tags=["Health"])
@@ -54,11 +60,54 @@ async def root() -> dict:
 
 @app.get("/ui", tags=["UI"], include_in_schema=False)
 async def serve_ui() -> FileResponse:
-    """Serve the sample frontend UI."""
     return FileResponse(Path(__file__).parent / "static" / "index.html")
+
+
+@app.get("/login", tags=["UI"], include_in_schema=False)
+async def serve_login() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "login.html")
+
+
+@app.get("/student", tags=["UI"], include_in_schema=False)
+async def serve_student() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "student.html")
+
+
+@app.get("/teacher", tags=["UI"], include_in_schema=False)
+async def serve_teacher() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "teacher.html")
+
+
+@app.get("/learn", tags=["UI"], include_in_schema=False)
+async def serve_learn() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "learn" / "index.html")
+
+
+@app.get("/learn/adhd", tags=["UI"], include_in_schema=False)
+async def serve_adhd() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "learn" / "adhd.html")
+
+
+@app.get("/learn/dyslexia", tags=["UI"], include_in_schema=False)
+async def serve_dyslexia() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "learn" / "dyslexia.html")
+
+
+@app.get("/learn/visual", tags=["UI"], include_in_schema=False)
+async def serve_visual() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "learn" / "visual.html")
+
+
+@app.get("/learn/hearing", tags=["UI"], include_in_schema=False)
+async def serve_hearing() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "learn" / "hearing.html")
+
+
+@app.get("/learn/cognitive", tags=["UI"], include_in_schema=False)
+async def serve_cognitive() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "learn" / "cognitive.html")
 
 
 @app.get("/voice", tags=["UI"], include_in_schema=False)
 async def serve_voice() -> FileResponse:
-    """Serve the voice-controlled UI for visual impairment mode."""
     return FileResponse(Path(__file__).parent / "static" / "voice.html")

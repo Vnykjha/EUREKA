@@ -1,0 +1,22 @@
+{
+  "Vnykjha": {
+    "hash": "4bc5d198ab9362bebc6f4cd78e008f24506c5ce8c1ece3e331686f17bba4962d",
+    "role": "student"
+  },
+  "admin": {
+    "hash": "7676aaafb027c825bd9abab78b234070e702752f625b752e55e55b48e607e358",
+    "role": "teacher"
+  },
+  "vnykjha": {
+    "hash": "4bc5d198ab9362bebc6f4cd78e008f24506c5ce8c1ece3e331686f17bba4962d",
+    "role": "student"
+  },
+  "vinayak": {
+    "hash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "role": "student"
+  },
+  "Student1": {
+    "hash": "050dda0e96a82c9290422f7dfe476dabd7f067fe089e2b6d3d095c28b6a4727b",
+    "role": "student"
+  }
+}

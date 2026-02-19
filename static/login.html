@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EUREKA — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet" />
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #050510;
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        spline-viewer {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: linear-gradient(135deg, rgba(5, 5, 16, .8) 0%, rgba(5, 5, 16, .4) 100%);
+        }
+
+        .layout {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .brand {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 48px;
+            max-width: 520px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(108, 99, 255, .15);
+            border: 1px solid rgba(108, 99, 255, .4);
+            color: #a5a0ff;
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .4px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            width: fit-content;
+            margin-bottom: 28px;
+        }
+
+        .brand h1 {
+            font-size: clamp(2.4rem, 4vw, 3.6rem);
+            font-weight: 900;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #fff 30%, #a5a0ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .brand p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, .55);
+            line-height: 1.7;
+            max-width: 380px;
+        }
+
+        .brand-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 28px;
+        }
+
+        .pill {
+            padding: 5px 13px;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .pill.adhd {
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, .3);
+            background: rgba(251, 191, 36, .08);
+        }
+
+        .pill.visual {
+            color: #60a5fa;
+            border-color: rgba(96, 165, 250, .3);
+            background: rgba(96, 165, 250, .08);
+        }
+
+        .pill.hearing {
+            color: #34d399;
+            border-color: rgba(52, 211, 153, .3);
+            background: rgba(52, 211, 153, .08);
+        }
+
+        .pill.dyslexia {
+            color: #f87171;
+            border-color: rgba(248, 113, 113, .3);
+            background: rgba(248, 113, 113, .08);
+        }
+
+        .pill.cognitive {
+            color: #c084fc;
+            border-color: rgba(192, 132, 252, .3);
+            background: rgba(192, 132, 252, .08);
+        }
+
+        /* Card */
+        .card {
+            width: 100%;
+            max-width: 430px;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 24px;
+            padding: 36px 32px;
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .1);
+        }
+
+        .card-logo {
+            font-size: 1.4rem;
+            font-weight: 900;
+            margin-bottom: 4px;
+            background: linear-gradient(90deg, #6c63ff, #00d4ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-sub {
+            font-size: .82rem;
+            color: rgba(255, 255, 255, .4);
+            margin-bottom: 22px;
+        }
+
+        /* Role toggle */
+        .role-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 22px;
+            gap: 4px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 9px 8px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, .45);
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .role-btn.active {
+            background: rgba(108, 99, 255, .35);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(108, 99, 255, .3);
+        }
+
+        .role-tag {
+            font-size: .65rem;
+            padding: 2px 7px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, .1);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, .05);
+            border-radius: 11px;
+            padding: 4px;
+            margin-bottom: 22px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, .4);
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .tab.active {
+            background: rgba(108, 99, 255, .28);
+            color: #fff;
+        }
+
+        /* Inputs */
+        .field {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-size: .78rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .6);
+            margin-bottom: 6px;
+        }
+
+        .glow-wrap {
+            position: relative;
+            border-radius: 12px;
+        }
+
+        .glow-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 13px;
+            background: conic-gradient(from var(--angle, 0deg), #6c63ff, #00d4ff, #ff6b9d, #6c63ff);
+            opacity: 0;
+            transition: opacity .3s;
+            z-index: 0;
+        }
+
+        .glow-wrap:focus-within::before {
+            opacity: 1;
+            animation: spin-border 3s linear infinite;
+        }
+
+        @property --angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @keyframes spin-border {
+            to {
+                --angle: 360deg;
+            }
+        }
+
+        .glow-wrap input {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding: 11px 15px;
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 12px;
+            color: #fff;
+            font-size: .88rem;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .glow-wrap:focus-within input {
+            background: rgba(255, 255, 255, .1);
+            border-color: transparent;
+        }
+
+        .glow-wrap input::placeholder {
+            color: rgba(255, 255, 255, .28);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #6c63ff, #5b8def);
+            color: #fff;
+            font-size: .9rem;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform .15s, box-shadow .2s;
+            margin-top: 4px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(108, 99, 255, .5);
+        }
+
+        .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .err {
+            color: #ff6b9d;
+            font-size: .8rem;
+            margin-top: 10px;
+            text-align: center;
+            min-height: 16px;
+        }
+
+        .spin {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, .3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: sp .6s linear infinite;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @media(max-width:860px) {
+            .brand {
+                display: none;
+            }
+
+            .layout {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <spline-viewer url="https://prod.spline.design/PyzDhpQ9E5f1E3MT/scene.splinecode"
+        loading-anim-type="spinner-small-dark"></spline-viewer>
+    <div class="overlay"></div>
+    <div class="layout">
+        <div class="brand">
+            <div class="brand-badge">🎓 Track 3B · Inclusive Education</div>
+            <h1>Learning without limits.</h1>
+            <p>EUREKA adapts NCERT content to every learning need — instantly, intelligently, inclusively.</p>
+            <div class="brand-pills">
+                <span class="pill adhd">🧠 ADHD</span>
+                <span class="pill visual">👁️ Visual</span>
+                <span class="pill hearing">👂 Hearing</span>
+                <span class="pill dyslexia">📖 Dyslexia</span>
+                <span class="pill cognitive">🌿 Cognitive</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-logo">⚡ EUREKA</div>
+            <div class="card-sub">Inclusive adaptive learning platform</div>
+
+            <!-- Role toggle -->
+            <div class="role-toggle">
+                <button class="role-btn active" id="role-student" onclick="setRole('student')">
+                    🎒 Student <span class="role-tag">Learner</span>
+                </button>
+                <button class="role-btn" id="role-teacher" onclick="setRole('teacher')">
+                    📋 Teacher <span class="role-tag">Educator</span>
+                </button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+                <button class="tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+            </div>
+
+            <form id="auth-form" onsubmit="handleSubmit(event)">
+                <div class="field">
+                    <label>Username</label>
+                    <div class="glow-wrap"><input id="username" type="text" placeholder="Enter username" required
+                            autocomplete="username" /></div>
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <div class="glow-wrap"><input id="password" type="password" placeholder="Enter password" required />
+                    </div>
+                </div>
+                <div class="err" id="err"></div>
+                <button class="btn" id="submit-btn" type="submit">Sign In</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        let mode = 'login', selectedRole = 'student';
+
+        // Already logged in?
+        const token = localStorage.getItem('eureka_token');
+        const role = localStorage.getItem('eureka_role');
+        if (token && role) {
+            window.location.href = role === 'teacher' ? '/teacher' : '/learn';
+        }
+
+        function setRole(r) {
+            selectedRole = r;
+            document.getElementById('role-student').classList.toggle('active', r === 'student');
+            document.getElementById('role-teacher').classList.toggle('active', r === 'teacher');
+            // Teachers use fixed credentials — no sign-up
+            const signupTab = document.getElementById('tab-signup');
+            if (r === 'teacher') {
+                signupTab.style.display = 'none';
+                switchTab('login');
+            } else {
+                signupTab.style.display = '';
+            }
+        }
+        function switchTab(t) {
+            mode = t;
+            document.getElementById('tab-login').classList.toggle('active', t === 'login');
+            document.getElementById('tab-signup').classList.toggle('active', t === 'signup');
+            document.getElementById('submit-btn').textContent = t === 'login' ? 'Sign In' : 'Create Account';
+            document.getElementById('err').textContent = '';
+        }
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('submit-btn');
+            const errEl = document.getElementById('err');
+            errEl.textContent = '';
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spin"></span>' + (mode === 'login' ? 'Signing in…' : 'Creating account…');
+            try {
+                const body = { username, password };
+                if (mode === 'signup') body.role = selectedRole;
+                const res = await fetch('/auth/' + mode, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Error');
+                localStorage.setItem('eureka_token', data.token);
+                localStorage.setItem('eureka_user', data.username);
+                localStorage.setItem('eureka_role', data.role);
+                window.location.href = data.role === 'teacher' ? '/teacher' : '/learn';
+            } catch (err) {
+                errEl.textContent = err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = mode === 'login' ? 'Sign In' : 'Create Account';
+            }
+        }
+    </script>
+</body>
+
+</html>

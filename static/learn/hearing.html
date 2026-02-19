@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EUREKA — Hearing Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #04100d;
+            --br: rgba(255, 255, 255, .1);
+            --ac: #34d399;
+            --pr: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: #f0fff8;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--br);
+            background: rgba(4, 16, 13, .95);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            background: rgba(52, 211, 153, .1);
+            border: 1px solid rgba(52, 211, 153, .3);
+            border-radius: 20px;
+            font-size: .72rem;
+            font-weight: 700;
+            color: #34d399;
+        }
+
+        .back {
+            color: rgba(255, 255, 255, .4);
+            font-size: .8rem;
+            text-decoration: none;
+            border: 1px solid var(--br);
+            padding: 5px 12px;
+            border-radius: 7px;
+        }
+
+        main {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 36px 20px 120px;
+        }
+
+        .notice {
+            background: rgba(52, 211, 153, .07);
+            border: 1px solid rgba(52, 211, 153, .2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: .85rem;
+            color: #34d399;
+            margin-bottom: 24px;
+        }
+
+        .sel-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        select {
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid var(--br);
+            border-radius: 11px;
+            color: #fff;
+            font-size: .88rem;
+            outline: none;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        select option {
+            background: #04100d;
+        }
+
+        .go-btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, var(--pr), var(--ac));
+            border: none;
+            border-radius: 11px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .chapter-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 22px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .v-card {
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--br);
+            border-radius: 16px;
+            padding: 20px;
+            border-top: 3px solid;
+        }
+
+        .v-card:nth-child(1) {
+            border-top-color: #34d399;
+        }
+
+        .v-card:nth-child(2) {
+            border-top-color: #60a5fa;
+        }
+
+        .v-card:nth-child(3) {
+            border-top-color: #f59e0b;
+        }
+
+        .v-card:nth-child(4) {
+            border-top-color: #f87171;
+        }
+
+        .v-card:nth-child(5) {
+            border-top-color: #c084fc;
+        }
+
+        .v-card:nth-child(6) {
+            border-top-color: #34d399;
+        }
+
+        .v-label {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            opacity: .5;
+            margin-bottom: 7px;
+            font-weight: 700;
+        }
+
+        .v-card p {
+            font-size: .92rem;
+            line-height: 1.75;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .9rem;
+            transition: all .2s;
+        }
+
+        .quiz-btn {
+            background: linear-gradient(135deg, var(--pr), var(--ac));
+            color: #000;
+        }
+
+        .flash-btn {
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid var(--br);
+            color: #fff;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, .4);
+            padding: 40px 0;
+        }
+
+        .spin {
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--br);
+            border-top-color: var(--ac);
+            border-radius: 50%;
+            animation: sp .7s linear infinite;
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(4, 16, 13, .96);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal.on {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #071a12;
+            border: 1px solid var(--br);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 580px;
+            width: 100%;
+        }
+
+        .q-prog {
+            font-size: .78rem;
+            color: rgba(255, 255, 255, .35);
+            margin-bottom: 8px;
+        }
+
+        .q-text {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        .q-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .q-opt {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--br);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: .9rem;
+            transition: all .2s;
+        }
+
+        .q-opt.correct {
+            border-color: #00e676;
+            color: #00e676;
+        }
+
+        .q-opt.wrong {
+            border-color: #f87171;
+            color: #f87171;
+        }
+
+        .next-btn {
+            padding: 10px 24px;
+            background: var(--ac);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        .score-big {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 10px 0;
+        }
+
+        .fc-scene {
+            perspective: 1000px;
+            height: 180px;
+            margin: 16px 0;
+            cursor: pointer;
+        }
+
+        .fc-card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform .5s;
+        }
+
+        .fc-card-inner.flip {
+            transform: rotateY(180deg);
+        }
+
+        .fc-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            font-size: .92rem;
+            line-height: 1.65;
+            backface-visibility: hidden;
+        }
+
+        .fc-front {
+            background: rgba(52, 211, 153, .1);
+            border: 1px solid rgba(52, 211, 153, .3);
+        }
+
+        .fc-back {
+            background: rgba(16, 185, 129, .12);
+            border: 1px solid rgba(16, 185, 129, .3);
+            transform: rotateY(180deg);
+        }
+
+        .fc-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .fc-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .85rem;
+        }
+
+        .fc-got {
+            background: rgba(0, 230, 118, .15);
+            border: 1px solid rgba(0, 230, 118, .3);
+            color: #00e676;
+        }
+
+        .fc-nope {
+            background: rgba(255, 107, 157, .1);
+            border: 1px solid rgba(255, 107, 157, .2);
+            color: #ff6b9d;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="badge">👂 Hearing Mode</div>
+        <a class="back" href="/student">← Home</a>
+    </header>
+    <main>
+        <div class="notice">👁️ Visual-first mode — no audio required. All content shown as visual cards.</div>
+        <div class="sel-row">
+            <select id="sg">
+                <option value="">Grade</option>
+            </select>
+            <select id="ss">
+                <option value="">Subject</option>
+            </select>
+            <select id="sc">
+                <option value="">Chapter</option>
+            </select>
+            <button class="go-btn" onclick="load()">Load ▶</button>
+        </div>
+        <div id="ca">
+            <p style="color:rgba(255,255,255,.3)">Select a chapter above.</p>
+        </div>
+    </main>
+    <div class="modal" id="qm">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span class="q-prog"
+                    id="qp"></span><button onclick="closeQ()"
+                    style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1.2rem;cursor:pointer">✕</button>
+            </div>
+            <div class="q-text" id="qt"></div>
+            <div class="q-opts" id="qo"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span id="qf"
+                    style="font-size:.82rem"></span><button class="next-btn" id="nb" onclick="nextQ()"
+                    style="display:none">Next →</button></div>
+            <div class="score-card" id="sc-el" style="display:none">
+                <div class="score-big" id="sb"></div>
+                <div id="sm" style="color:rgba(255,255,255,.5);margin-bottom:18px"></div><button onclick="closeQ()"
+                    style="padding:10px 24px;background:var(--ac);border:none;border-radius:10px;color:#000;font-weight:700;cursor:pointer">Done</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="fm">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span
+                    style="font-weight:700">🃏 Flashcards</span><button onclick="closeF()"
+                    style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+            </div>
+            <div
+                style="display:flex;justify-content:space-between;font-size:.82rem;color:rgba(255,255,255,.4);margin-bottom:4px">
+                <span id="fn"></span><span>Click to flip</span></div>
+            <div class="fc-scene">
+                <div class="fc-card-inner" id="fci" onclick="flipF()">
+                    <div class="fc-face fc-front" id="ff"></div>
+                    <div class="fc-face fc-back" id="fb"></div>
+                </div>
+            </div>
+            <div class="fc-actions"><button class="fc-btn fc-nope" onclick="fcN(-1)">◀ Prev</button><button
+                    class="fc-btn fc-got" onclick="fcN(1)">Next ▶</button></div>
+        </div>
+    </div>
+    <script>
+        const API = 'http://127.0.0.1:8001', user = localStorage.getItem('eureka_user') || 'Student';
+        if (!localStorage.getItem('eureka_token')) window.location.href = '/login';
+        const SUBS = { low: ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi'], hi: ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'English'] };
+        const CH = { 'Mathematics': ['Real Numbers', 'Polynomials', 'Quadratic Equations', 'Triangles', 'Trigonometry', 'Circles', 'Statistics'], 'Science': ['Chemical Reactions', 'Acids Bases Salts', 'Metals Non-metals', 'Carbon Compounds', 'Life Processes', 'Reproduction', 'Light', 'Electricity'], 'Social Science': ['Nationalism in Europe', 'Nationalism in India', 'Resources', 'Power Sharing'], 'English': ['A Letter to God', 'Nelson Mandela', 'Anne Frank'], 'Hindi': ['Surdas', 'Tulsidas'], 'Physics': ['Electric Charges', 'Current Electricity', 'Ray Optics', 'Dual Nature'], 'Chemistry': ['Solid State', 'Solutions', 'Electrochemistry'], 'Biology': ['Reproduction', 'Genetics', 'Evolution'] };
+        const sg = document.getElementById('sg'), ss = document.getElementById('ss'), scc = document.getElementById('sc');
+        [6, 7, 8, 9, 10, 11, 12].forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = 'Grade ' + g; sg.appendChild(o); });
+        sg.addEventListener('change', () => { ss.innerHTML = '<option value="">Subject</option>'; (+sg.value >= 11 ? SUBS.hi : SUBS.low).forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; ss.appendChild(o); }); scc.innerHTML = '<option value="">Chapter</option>'; });
+        ss.addEventListener('change', () => { scc.innerHTML = '<option value="">Chapter</option>'; (CH[ss.value] || []).forEach((c, i) => { const o = document.createElement('option'); o.value = c; o.textContent = (i + 1) + '. ' + c; scc.appendChild(o); }); });
+        let raw = '', qd = [], fd = [], qi = 0, fi = 0, cc = 0;
+        const LABELS = ['📘 Overview', '🔑 Key Concepts', '📊 How It Works', '🌍 Examples', '⚡ Key Facts', '🔗 Connections'];
+        async function load() {
+            const g = +sg.value, s = ss.value, c = scc.value; if (!g || !s || !c) return;
+            document.getElementById('ca').innerHTML = '<div class="loading"><div class="spin"></div>Generating visual content…</div>';
+            try {
+                const r = await fetch(`${API}/adapt`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `Explain "${c}" from ${s} Grade ${g} in 5-6 clearly labelled sections. Use visual descriptions.`, disability_profile: 'hearing_impairment', grade: g, subject: s, chapter: c }) });
+                const d = await r.json(); raw = d.simplified || d.visual_description || '';
+                const parts = raw.split(/\n{2,}/).filter(p => p.trim().length > 20).slice(0, 6);
+                document.getElementById('ca').innerHTML = `<div class="chapter-title">👂 ${c}</div><div class="card-grid">${parts.map((p, i) => `<div class="v-card"><div class="v-label">${LABELS[i] || '📌 Point ' + (i + 1)}</div><p>${p}</p></div>`).join('')}</div><div class="actions"><button class="action-btn quiz-btn" onclick="startQ()">📝 Quiz</button><button class="action-btn flash-btn" onclick="startF()">🃏 Flashcards</button></div>`;
+            } catch (e) { document.getElementById('ca').innerHTML = `<p style="color:#f87171">${e.message}</p>`; }
+        }
+        async function startQ() {
+            document.getElementById('qm').classList.add('on'); document.getElementById('sc-el').style.display = 'none';
+            document.getElementById('qt').textContent = 'Generating…'; document.getElementById('qo').innerHTML = ''; cc = 0; qi = 0;
+            try { const r = await fetch(`${API}/quiz/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: raw, chapter: scc.value, subject: ss.value, grade: +sg.value }) }); qd = (await r.json()).questions || []; showQ(); }
+            catch (e) { document.getElementById('qt').textContent = 'Error: ' + e.message; }
+        }
+        function showQ() {
+            if (qi >= qd.length) { endQ(); return; } const q = qd[qi];
+            document.getElementById('qp').textContent = `Q${qi + 1}/${qd.length}`; document.getElementById('qt').textContent = q.question;
+            document.getElementById('qo').innerHTML = q.options.map(o => `<div class="q-opt" onclick="pick(this,'${o[0]}','${q.answer}')">${o}</div>`).join('');
+            document.getElementById('qf').textContent = ''; document.getElementById('nb').style.display = 'none';
+        }
+        function pick(el, c, a) {
+            document.querySelectorAll('.q-opt').forEach(o => o.onclick = null);
+            if (c === a) { el.classList.add('correct'); document.getElementById('qf').textContent = '✅ Correct!'; cc++; }
+            else { el.classList.add('wrong'); document.getElementById('qf').textContent = '❌ Ans: ' + a; document.querySelectorAll('.q-opt').forEach(o => { if (o.textContent[0] === a) o.classList.add('correct'); }); }
+            document.getElementById('nb').style.display = 'inline-block';
+        }
+        function nextQ() { qi++; showQ(); }
+        async function endQ() {
+            ['qo', 'qt', 'qp'].forEach(id => document.getElementById(id)[id === 'qo' ? 'innerHTML' : 'textContent'] = '');
+            document.getElementById('nb').style.display = 'none'; document.getElementById('qf').textContent = '';
+            document.getElementById('sb').textContent = `${cc}/${qd.length}`;
+            document.getElementById('sm').textContent = cc >= 4 ? 'Excellent! 🏆' : 'Keep going! 🌟';
+            document.getElementById('sc-el').style.display = 'block';
+            try { await fetch(`${API}/quiz/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ student: user, grade: +sg.value, subject: ss.value, chapter: scc.value, score: cc, total: qd.length }) }); } catch (e) { }
+        }
+        function closeQ() { document.getElementById('qm').classList.remove('on'); }
+        async function startF() {
+            document.getElementById('fm').classList.add('on'); document.getElementById('ff').textContent = 'Loading…'; fi = 0;
+            try { const r = await fetch(`${API}/flashcard/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: raw, chapter: scc.value, subject: ss.value, grade: +sg.value }) }); fd = (await r.json()).flashcards || []; showF(); }
+            catch (e) { document.getElementById('ff').textContent = 'Error: ' + e.message; }
+        }
+        function showF() { if (!fd.length) return; document.getElementById('fci').classList.remove('flip'); document.getElementById('ff').textContent = fd[fi].question; document.getElementById('fb').textContent = fd[fi].answer; document.getElementById('fn').textContent = `${fi + 1}/${fd.length}`; }
+        function flipF() { document.getElementById('fci').classList.toggle('flip'); }
+        function fcN(d) { fi = (fi + d + fd.length) % fd.length; showF(); }
+        function closeF() { document.getElementById('fm').classList.remove('on'); }
+    </script>
+</body>
+
+</html>

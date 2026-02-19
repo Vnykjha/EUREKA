@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EUREKA — Cognitive Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #08060f;
+            --br: rgba(255, 255, 255, .1);
+            --ac: #c084fc;
+            --pr: #a855f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: #f5f0ff;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--br);
+            background: rgba(8, 6, 15, .95);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #a855f7, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            background: rgba(192, 132, 252, .1);
+            border: 1px solid rgba(192, 132, 252, .3);
+            border-radius: 20px;
+            font-size: .72rem;
+            font-weight: 700;
+            color: #c084fc;
+        }
+
+        .back {
+            color: rgba(255, 255, 255, .4);
+            font-size: .8rem;
+            text-decoration: none;
+            border: 1px solid var(--br);
+            padding: 5px 12px;
+            border-radius: 7px;
+        }
+
+        main {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 40px 24px 120px;
+        }
+
+        .sel-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 36px;
+        }
+
+        select {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid var(--br);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        select option {
+            background: #08060f;
+        }
+
+        .go-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--pr), var(--ac));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* One-concept slide */
+        .concept-wrap {
+            position: relative;
+            min-height: 320px;
+        }
+
+        .concept-card {
+            background: rgba(168, 85, 247, .08);
+            border: 1px solid rgba(168, 85, 247, .25);
+            border-radius: 24px;
+            padding: 40px 36px;
+            margin-bottom: 28px;
+        }
+
+        .concept-num {
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: rgba(192, 132, 252, .6);
+            margin-bottom: 14px;
+        }
+
+        .concept-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.75;
+            color: #fff;
+        }
+
+        .nav-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 14px 28px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all .2s;
+        }
+
+        .prev-btn {
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid var(--br);
+            color: rgba(255, 255, 255, .6);
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, var(--pr), var(--ac));
+            color: #fff;
+        }
+
+        .nav-btn:disabled {
+            opacity: .3;
+            cursor: not-allowed;
+        }
+
+        .prog {
+            text-align: center;
+            color: rgba(255, 255, 255, .35);
+            font-size: .9rem;
+        }
+
+        .done-banner {
+            text-align: center;
+            padding: 40px 24px;
+        }
+
+        .done-banner h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 14px 28px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .quiz-btn {
+            background: linear-gradient(135deg, var(--pr), var(--ac));
+            color: #fff;
+        }
+
+        .flash-btn {
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid var(--br);
+            color: #fff;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, .4);
+            padding: 60px 0;
+            font-size: 1.1rem;
+        }
+
+        .spin {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--br);
+            border-top-color: var(--ac);
+            border-radius: 50%;
+            animation: sp .7s linear infinite;
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(8, 6, 15, .96);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal.on {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #120d1e;
+            border: 1px solid var(--br);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 580px;
+            width: 100%;
+        }
+
+        .q-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            line-height: 1.65;
+        }
+
+        .q-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            margin-bottom: 20px;
+        }
+
+        .q-opt {
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--br);
+            border-radius: 11px;
+            cursor: pointer;
+            font-size: .95rem;
+            transition: all .2s;
+        }
+
+        .q-opt.correct {
+            border-color: #00e676;
+            color: #00e676;
+        }
+
+        .q-opt.wrong {
+            border-color: #f87171;
+            color: #f87171;
+        }
+
+        .qnext {
+            padding: 11px 28px;
+            background: var(--ac);
+            border: none;
+            border-radius: 11px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        .score-big {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 10px 0;
+        }
+
+        .fc-scene {
+            perspective: 1000px;
+            height: 190px;
+            margin: 16px 0;
+            cursor: pointer;
+        }
+
+        .fc-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform .5s;
+        }
+
+        .fc-inner.flip {
+            transform: rotateY(180deg);
+        }
+
+        .fc-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 22px;
+            text-align: center;
+            font-size: .95rem;
+            line-height: 1.65;
+            backface-visibility: hidden;
+        }
+
+        .fc-front {
+            background: rgba(168, 85, 247, .12);
+            border: 1px solid rgba(168, 85, 247, .3);
+        }
+
+        .fc-back {
+            background: rgba(192, 132, 252, .1);
+            border: 1px solid rgba(192, 132, 252, .3);
+            transform: rotateY(180deg);
+        }
+
+        .fc-acts {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .fc-b {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .9rem;
+        }
+
+        .fc-g {
+            background: rgba(0, 230, 118, .15);
+            border: 1px solid rgba(0, 230, 118, .3);
+            color: #00e676;
+        }
+
+        .fc-n {
+            background: rgba(255, 107, 157, .1);
+            border: 1px solid rgba(255, 107, 157, .2);
+            color: #ff6b9d;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="badge">🌿 Cognitive Mode</div>
+        <a class="back" href="/student">← Home</a>
+    </header>
+    <main>
+        <div class="sel-row">
+            <select id="sg">
+                <option value="">Grade</option>
+            </select>
+            <select id="ss">
+                <option value="">Subject</option>
+            </select>
+            <select id="sc">
+                <option value="">Chapter</option>
+            </select>
+            <button class="go-btn" onclick="load()">Load ▶</button>
+        </div>
+        <div id="ca">
+            <p style="color:rgba(255,255,255,.35);font-size:1.1rem">Choose a grade, subject and chapter above.</p>
+        </div>
+    </main>
+    <div class="modal" id="qm">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span
+                    style="font-size:.78rem;color:rgba(255,255,255,.3)" id="qp"></span><button onclick="closeQ()"
+                    style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1.2rem;cursor:pointer">✕</button>
+            </div>
+            <div class="q-text" id="qt"></div>
+            <div class="q-opts" id="qo"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span id="qf"
+                    style="font-size:.85rem"></span><button class="qnext" id="nb" onclick="nextQ()"
+                    style="display:none">Next →</button></div>
+            <div class="score-card" id="scv" style="display:none">
+                <div class="score-big" id="sb"></div>
+                <div id="sm" style="color:rgba(255,255,255,.5);margin-bottom:18px"></div><button onclick="closeQ()"
+                    style="padding:10px 24px;background:var(--ac);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer">Done</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="fm">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span
+                    style="font-weight:700;font-size:1rem">🃏 Flashcards</span><button onclick="closeF()"
+                    style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+            </div>
+            <div
+                style="display:flex;justify-content:space-between;font-size:.82rem;color:rgba(255,255,255,.4);margin-bottom:6px">
+                <span id="fn"></span><span>Tap to flip</span></div>
+            <div class="fc-scene">
+                <div class="fc-inner" id="fi" onclick="flipF()">
+                    <div class="fc-face fc-front" id="ff"></div>
+                    <div class="fc-face fc-back" id="fb"></div>
+                </div>
+            </div>
+            <div class="fc-acts"><button class="fc-b fc-n" onclick="fcN(-1)">◀ Prev</button><button class="fc-b fc-g"
+                    onclick="fcN(1)">Next ▶</button></div>
+        </div>
+    </div>
+    <script>
+        const API = 'http://127.0.0.1:8001', user = localStorage.getItem('eureka_user') || 'Student';
+        if (!localStorage.getItem('eureka_token')) window.location.href = '/login';
+        const SUBS = { low: ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi'], hi: ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'English'] };
+        const CH = { 'Mathematics': ['Real Numbers', 'Polynomials', 'Quadratic Equations', 'Triangles', 'Trigonometry', 'Circles', 'Statistics'], 'Science': ['Chemical Reactions', 'Acids Bases Salts', 'Metals Non-metals', 'Carbon Compounds', 'Life Processes', 'Reproduction', 'Light', 'Electricity'], 'Social Science': ['Nationalism in Europe', 'Nationalism in India', 'Resources', 'Power Sharing'], 'English': ['A Letter to God', 'Nelson Mandela', 'Anne Frank'], 'Hindi': ['Surdas', 'Tulsidas'], 'Physics': ['Electric Charges', 'Current Electricity', 'Ray Optics', 'Dual Nature'], 'Chemistry': ['Solid State', 'Solutions', 'Electrochemistry'], 'Biology': ['Reproduction', 'Genetics', 'Evolution'] };
+        const sg = document.getElementById('sg'), ss = document.getElementById('ss'), scc = document.getElementById('sc');
+        [6, 7, 8, 9, 10, 11, 12].forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = 'Grade ' + g; sg.appendChild(o); });
+        sg.addEventListener('change', () => { ss.innerHTML = '<option value="">Subject</option>'; (+sg.value >= 11 ? SUBS.hi : SUBS.low).forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; ss.appendChild(o); }); scc.innerHTML = '<option value="">Chapter</option>'; });
+        ss.addEventListener('change', () => { scc.innerHTML = '<option value="">Chapter</option>'; (CH[ss.value] || []).forEach((c, i) => { const o = document.createElement('option'); o.value = c; o.textContent = (i + 1) + '. ' + c; scc.appendChild(o); }); });
+        let raw = '', concepts = [], ci = 0, qd = [], fd = [], qi = 0, fi = 0, cc = 0;
+        async function load() {
+            const g = +sg.value, s = ss.value, c = scc.value; if (!g || !s || !c) { alert('Select all fields'); return; }
+            document.getElementById('ca').innerHTML = '<div class="loading"><div class="spin"></div>Getting ready for you…</div>';
+            try {
+                const r = await fetch(`${API}/adapt`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `Explain "${c}" from ${s} Grade ${g}. Use VERY simple words. Write 5-7 short paragraphs. Each paragraph explains ONE simple idea. Maximum 2 sentences each. Use the simplest possible words.`, disability_profile: 'cognitive', grade: g, subject: s, chapter: c }) });
+                const d = await r.json(); raw = d.simplified || d.visual_description || '';
+                concepts = raw.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 15).slice(0, 7);
+                ci = 0; showConcept();
+            } catch (e) { document.getElementById('ca').innerHTML = `<p style="color:#f87171">${e.message}</p>`; }
+        }
+        function showConcept() {
+            if (ci >= concepts.length) { showDone(); return; }
+            document.getElementById('ca').innerHTML = `
+    <div class="concept-wrap">
+      <div class="concept-card">
+        <div class="concept-num">Idea ${ci + 1} of ${concepts.length}</div>
+        <div class="concept-text">${concepts[ci]}</div>
+      </div>
+      <div class="nav-row">
+        <button class="nav-btn prev-btn" onclick="goPrev()" ${ci === 0 ? 'disabled' : ''}>← Back</button>
+        <div class="prog">${'●'.repeat(ci + 1)}${'○'.repeat(concepts.length - ci - 1)}</div>
+        <button class="nav-btn next-btn" onclick="goNext()">${ci === concepts.length - 1 ? 'Finish ✓' : 'Next →'}</button>
+      </div>
+    </div>`;
+        }
+        function goNext() { ci++; showConcept(); }
+        function goPrev() { if (ci > 0) { ci--; showConcept(); } }
+        function showDone() {
+            document.getElementById('ca').innerHTML = `<div class="done-banner"><div style="font-size:3rem">🎉</div><h2>Great job!</h2><p style="color:rgba(255,255,255,.5);font-size:1.1rem">You read the whole chapter.</p><div class="actions"><button class="action-btn quiz-btn" onclick="startQ()">📝 Take the Quiz</button><button class="action-btn flash-btn" onclick="startF()">🃏 Flashcards</button></div></div>`;
+        }
+        async function startQ() {
+            document.getElementById('qm').classList.add('on'); document.getElementById('scv').style.display = 'none';
+            document.getElementById('qt').textContent = 'Generating quiz…'; document.getElementById('qo').innerHTML = ''; cc = 0; qi = 0;
+            try { const r = await fetch(`${API}/quiz/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: raw, chapter: scc.value, subject: ss.value, grade: +sg.value }) }); qd = (await r.json()).questions || []; showQ(); }
+            catch (e) { document.getElementById('qt').textContent = 'Error: ' + e.message; }
+        }
+        function showQ() {
+            if (qi >= qd.length) { endQ(); return; } const q = qd[qi];
+            document.getElementById('qp').textContent = `${qi + 1}/${qd.length}`; document.getElementById('qt').textContent = q.question;
+            document.getElementById('qo').innerHTML = q.options.map(o => `<div class="q-opt" onclick="pick(this,'${o[0]}','${q.answer}')">${o}</div>`).join('');
+            document.getElementById('qf').textContent = ''; document.getElementById('nb').style.display = 'none';
+        }
+        function pick(el, c, a) {
+            document.querySelectorAll('.q-opt').forEach(o => o.onclick = null);
+            if (c === a) { el.classList.add('correct'); document.getElementById('qf').textContent = '✅ Correct!'; cc++; }
+            else { el.classList.add('wrong'); document.getElementById('qf').textContent = '❌ Ans: ' + a; document.querySelectorAll('.q-opt').forEach(o => { if (o.textContent[0] === a) o.classList.add('correct'); }); }
+            document.getElementById('nb').style.display = 'inline-block';
+        }
+        function nextQ() { qi++; showQ(); }
+        async function endQ() {
+            ['qo', 'qt', 'qp'].forEach(id => document.getElementById(id)[id === 'qo' ? 'innerHTML' : 'textContent'] = '');
+            document.getElementById('nb').style.display = 'none'; document.getElementById('qf').textContent = '';
+            document.getElementById('sb').textContent = `${cc}/${qd.length}`;
+            document.getElementById('sm').textContent = cc >= 4 ? 'Amazing work! 🏆☀️' : 'You did great! Keep going! 🌟';
+            document.getElementById('scv').style.display = 'block';
+            try { await fetch(`${API}/quiz/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ student: user, grade: +sg.value, subject: ss.value, chapter: scc.value, score: cc, total: qd.length }) }); } catch (e) { }
+        }
+        function closeQ() { document.getElementById('qm').classList.remove('on'); }
+        async function startF() {
+            document.getElementById('fm').classList.add('on'); document.getElementById('ff').textContent = 'Loading…'; fi = 0;
+            try { const r = await fetch(`${API}/flashcard/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: raw, chapter: scc.value, subject: ss.value, grade: +sg.value }) }); fd = (await r.json()).flashcards || []; showF(); }
+            catch (e) { document.getElementById('ff').textContent = 'Error: ' + e.message; }
+        }
+        function showF() { if (!fd.length) return; document.getElementById('fi').classList.remove('flip'); document.getElementById('ff').textContent = fd[fi].question; document.getElementById('fb').textContent = fd[fi].answer; document.getElementById('fn').textContent = `${fi + 1}/${fd.length}`; }
+        function flipF() { document.getElementById('fi').classList.toggle('flip'); }
+        function fcN(d) { fi = (fi + d + fd.length) % fd.length; showF(); }
+        function closeF() { document.getElementById('fm').classList.remove('on'); }
+    </script>
+</body>
+
+</html>

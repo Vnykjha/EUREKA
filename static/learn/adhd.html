@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EUREKA — ADHD Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --sur: rgba(255, 255, 255, .05);
+            --br: rgba(255, 255, 255, .1);
+            --tx: #f0f0f0;
+            --ac: #fbbf24;
+            --pr: #6c63ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--tx);
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--br);
+            background: rgba(10, 10, 26, .95);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #6c63ff, #fbbf24);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            background: rgba(251, 191, 36, .12);
+            border: 1px solid rgba(251, 191, 36, .3);
+            border-radius: 20px;
+            font-size: .72rem;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+
+        .back {
+            color: rgba(255, 255, 255, .4);
+            font-size: .8rem;
+            text-decoration: none;
+            border: 1px solid var(--br);
+            padding: 5px 12px;
+            border-radius: 7px;
+        }
+
+        main {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 36px 20px 120px;
+        }
+
+        /* Selector */
+        .sel-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        select {
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid var(--br);
+            border-radius: 11px;
+            color: #fff;
+            font-size: .88rem;
+            outline: none;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        select option {
+            background: #1a1a2e;
+        }
+
+        .go-btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, var(--pr), #5b8def);
+            border: none;
+            border-radius: 11px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .go-btn:hover {
+            opacity: .9;
+        }
+
+        /* Progress bar */
+        .prog-wrap {
+            background: rgba(255, 255, 255, .06);
+            border-radius: 30px;
+            height: 6px;
+            margin-bottom: 28px;
+            overflow: hidden;
+        }
+
+        .prog-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            border-radius: 30px;
+            transition: width .5s;
+        }
+
+        /* Bullet zone */
+        .chapter-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bullet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bullet {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--br);
+            border-radius: 14px;
+            padding: 16px 18px;
+            transition: all .2s;
+            cursor: pointer;
+        }
+
+        .bullet.done {
+            background: rgba(251, 191, 36, .08);
+            border-color: rgba(251, 191, 36, .3);
+        }
+
+        .cb {
+            width: 22px;
+            height: 22px;
+            border: 2px solid rgba(255, 255, 255, .2);
+            border-radius: 6px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            transition: all .2s;
+        }
+
+        .bullet.done .cb {
+            background: #fbbf24;
+            border-color: #fbbf24;
+            color: #000;
+        }
+
+        .bullet-text {
+            font-size: .95rem;
+            line-height: 1.65;
+        }
+
+        /* Action buttons */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .9rem;
+            transition: all .2s;
+        }
+
+        .quiz-btn {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #000;
+        }
+
+        .flash-btn {
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid var(--br);
+            color: #fff;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, .4);
+            padding: 40px 0;
+        }
+
+        .spin {
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--br);
+            border-top-color: var(--ac);
+            border-radius: 50%;
+            animation: sp .7s linear infinite;
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* ── QUIZ MODAL ── */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(5, 5, 16, .95);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal.on {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #0f0f22;
+            border: 1px solid var(--br);
+            border-radius: 24px;
+            padding: 36px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .q-prog {
+            font-size: .78rem;
+            color: rgba(255, 255, 255, .35);
+            margin-bottom: 8px;
+        }
+
+        .q-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        .q-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .q-opt {
+            padding: 13px 18px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--br);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: .92rem;
+            transition: all .2s;
+        }
+
+        .q-opt:hover {
+            border-color: var(--ac);
+            background: rgba(251, 191, 36, .08);
+        }
+
+        .q-opt.selected {
+            border-color: var(--ac);
+            background: rgba(251, 191, 36, .12);
+            color: #fbbf24;
+        }
+
+        .q-opt.correct {
+            border-color: #00e676;
+            background: rgba(0, 230, 118, .12);
+            color: #00e676;
+        }
+
+        .q-opt.wrong {
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, .1);
+            color: #ff6b9d;
+        }
+
+        .next-btn {
+            padding: 11px 28px;
+            background: var(--ac);
+            border: none;
+            border-radius: 11px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .score-big {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 12px 0;
+        }
+
+        .score-msg {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, .5);
+            margin-bottom: 24px;
+        }
+
+        /* ── FLASHCARD MODAL ── */
+        .fc-scene {
+            perspective: 1000px;
+            height: 220px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+
+        .fc-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform .5s;
+        }
+
+        .fc-card.flip {
+            transform: rotateY(180deg);
+        }
+
+        .fc-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.6;
+            backface-visibility: hidden;
+        }
+
+        .fc-front {
+            background: linear-gradient(135deg, rgba(108, 99, 255, .2), rgba(91, 141, 239, .1));
+            border: 1px solid rgba(108, 99, 255, .3);
+        }
+
+        .fc-back {
+            background: linear-gradient(135deg, rgba(251, 191, 36, .15), rgba(245, 158, 11, .08));
+            border: 1px solid rgba(251, 191, 36, .3);
+            transform: rotateY(180deg);
+        }
+
+        .fc-hint {
+            font-size: .72rem;
+            color: rgba(255, 255, 255, .3);
+            text-align: center;
+        }
+
+        .fc-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .fc-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .85rem;
+        }
+
+        .fc-got {
+            background: rgba(0, 230, 118, .15);
+            border: 1px solid rgba(0, 230, 118, .3);
+            color: #00e676;
+        }
+
+        .fc-nope {
+            background: rgba(255, 107, 157, .1);
+            border: 1px solid rgba(255, 107, 157, .2);
+            color: #ff6b9d;
+        }
+
+        .fc-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .82rem;
+            color: rgba(255, 255, 255, .4);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="badge">🧠 ADHD Mode</div>
+        <a class="back" href="/student">← Home</a>
+    </header>
+
+    <main>
+        <div class="sel-row">
+            <select id="sel-grade">
+                <option value="">Grade</option>
+            </select>
+            <select id="sel-subject">
+                <option value="">Subject</option>
+            </select>
+            <select id="sel-chapter">
+                <option value="">Chapter</option>
+            </select>
+            <button class="go-btn" onclick="loadContent()">Load ▶</button>
+        </div>
+        <div class="prog-wrap">
+            <div class="prog-bar" id="prog" style="width:0%"></div>
+        </div>
+        <div id="content-area">
+            <p style="color:rgba(255,255,255,.3)">Select a grade, subject and chapter, then click Load.</p>
+        </div>
+    </main>
+
+    <!-- Quiz modal -->
+    <div class="modal" id="quiz-modal">
+        <div class="modal-box">
+            <div class="q-prog" id="q-prog"></div>
+            <div class="q-text" id="q-text"></div>
+            <div class="q-options" id="q-options"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span id="q-feedback" style="font-size:.82rem"></span>
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()" style="display:none">Next →</button>
+            </div>
+            <div class="score-card" id="score-card" style="display:none">
+                <div class="score-big" id="score-big"></div>
+                <div class="score-msg" id="score-msg"></div>
+                <button onclick="closeQuiz()"
+                    style="padding:11px 28px;background:var(--ac);border:none;border-radius:11px;color:#000;font-weight:700;cursor:pointer;">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flashcard modal -->
+    <div class="modal" id="fc-modal">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:.9rem;font-weight:700">🃏 Flashcards</span>
+                <button onclick="closeFc()"
+                    style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+            </div>
+            <div class="fc-nav"><span id="fc-num"></span><span>Tap card to flip</span></div>
+            <div class="fc-scene">
+                <div class="fc-card" id="fc-card" onclick="flipCard()">
+                    <div class="fc-face fc-front" id="fc-front"></div>
+                    <div class="fc-face fc-back" id="fc-back"></div>
+                </div>
+            </div>
+            <div class="fc-hint">Tap to reveal answer</div>
+            <div class="fc-actions">
+                <button class="fc-btn fc-nope" onclick="fcNav(-1)">◀ Prev</button>
+                <button class="fc-btn fc-got" onclick="fcNav(1)">Next ▶</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:8001';
+        const user = localStorage.getItem('eureka_user') || 'Student';
+        if (!localStorage.getItem('eureka_token')) window.location.href = '/login';
+
+        // Curriculum
+        const SUBJECTS = { lower: ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi'], senior: ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'English'] };
+        const CHAPTERS = {
+            'Mathematics': ['Real Numbers', 'Polynomials', 'Pair of Linear Equations', 'Quadratic Equations', 'Arithmetic Progressions', 'Triangles', 'Coordinate Geometry', 'Introduction to Trigonometry', 'Circles', 'Statistics', 'Probability'],
+            'Science': ['Chemical Reactions', 'Acids Bases and Salts', 'Metals and Non-metals', 'Carbon and Compounds', 'Life Processes', 'Control and Coordination', 'Reproduction', 'Heredity', 'Light', 'Electricity', 'Magnetism', 'Our Environment'],
+            'Social Science': ['Rise of Nationalism', 'Nationalism in India', 'Globalisation', 'Resources', 'Agriculture', 'Power Sharing', 'Federalism', 'Democracy'],
+            'English': ['A Letter to God', 'Nelson Mandela', 'Two Stories', 'Anne Frank', 'Glimpses of India'],
+            'Hindi': ['Surdas', 'Tulsidas', 'Jaishankar Prasad', 'Nirala'],
+            'Physics': ['Electric Charges', 'Current Electricity', 'Magnetism', 'Electromagnetic Waves', 'Ray Optics', 'Dual Nature', 'Atoms', 'Semiconductors'],
+            'Chemistry': ['Solid State', 'Solutions', 'Electrochemistry', 'Chemical Kinetics', 'Haloalkanes', 'Amines', 'Biomolecules'],
+            'Biology': ['Reproduction', 'Genetics', 'Evolution', 'Human Health', 'Biotechnology', 'Ecosystem'],
+        };
+
+        const gSel = document.getElementById('sel-grade'), sSel = document.getElementById('sel-subject'), cSel = document.getElementById('sel-chapter');
+        [6, 7, 8, 9, 10, 11, 12].forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = 'Grade ' + g; gSel.appendChild(o); });
+        gSel.addEventListener('change', () => { sSel.innerHTML = '<option value="">Subject</option>'; const g = +gSel.value; const list = g >= 11 ? SUBJECTS.senior : SUBJECTS.lower; list.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sSel.appendChild(o); }); cSel.innerHTML = '<option value="">Chapter</option>'; });
+        sSel.addEventListener('change', () => { cSel.innerHTML = '<option value="">Chapter</option>'; const list = CHAPTERS[sSel.value] || []; list.forEach((c, i) => { const o = document.createElement('option'); o.value = c; o.textContent = (i + 1) + '. ' + c; cSel.appendChild(o); }); });
+
+        let rawContent = '', bullets = [], quizData = [], fcData = [], qIdx = 0, fcIdx = 0;
+
+        async function loadContent() {
+            const grade = +gSel.value, subject = sSel.value, chapter = cSel.value;
+            if (!grade || !subject || !chapter) { alert('Please select all fields'); return; }
+            document.getElementById('content-area').innerHTML = '<div class="loading"><div class="spin"></div>Generating ADHD-optimised content…</div>';
+            try {
+                const res = await fetch(`${API}/adapt`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `Summarise "${chapter}" from ${subject} Grade ${grade} as concise bullet points (max 12). Each bullet should be one short, clear sentence.`, disability_profile: 'adhd', grade, subject, chapter }) });
+                const data = await res.json();
+                rawContent = data.simplified || data.visual_description || data.tts_script || '';
+                bullets = rawContent.split('\n').map(l => l.replace(/^[-*•\d.]+\s*/, '')).filter(l => l.trim().length > 10).slice(0, 12);
+                renderBullets(chapter);
+            } catch (e) { document.getElementById('content-area').innerHTML = `<p style="color:#ff6b9d">Error: ${e.message}</p>`; }
+        }
+
+        function renderBullets(chapter) {
+            let done = 0;
+            const html = `<div class="chapter-title">🧠 ${chapter}</div>
+    <div class="bullet-list">${bullets.map((b, i) => `<div class="bullet" id="b${i}" onclick="toggleBullet(${i})"><div class="cb" id="cb${i}"></div><div class="bullet-text">${b}</div></div>`).join('')}</div>
+    <div class="actions" id="actions" style="display:none">
+      <button class="action-btn quiz-btn" onclick="startQuiz()">📝 Take Quiz</button>
+      <button class="action-btn flash-btn" onclick="startFlashcards()">🃏 Flashcards</button>
+    </div>`;
+            document.getElementById('content-area').innerHTML = html;
+            updateProg();
+        }
+
+        function toggleBullet(i) {
+            const el = document.getElementById('b' + i), cb = document.getElementById('cb' + i);
+            el.classList.toggle('done');
+            cb.textContent = el.classList.contains('done') ? '✓' : '';
+            updateProg();
+        }
+        function updateProg() {
+            const done = document.querySelectorAll('.bullet.done').length;
+            const pct = bullets.length ? Math.round(done / bullets.length * 100) : 0;
+            document.getElementById('prog').style.width = pct + '%';
+            if (pct === 100) document.getElementById('actions').style.display = 'flex';
+        }
+
+        // ── Quiz ──
+        async function startQuiz() {
+            document.getElementById('quiz-modal').classList.add('on');
+            document.getElementById('score-card').style.display = 'none';
+            document.getElementById('q-text').textContent = 'Generating quiz…';
+            document.getElementById('q-options').innerHTML = '';
+            try {
+                const res = await fetch(`${API}/quiz/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: rawContent, chapter: cSel.value, subject: sSel.value, grade: +gSel.value }) });
+                const data = await res.json();
+                quizData = data.questions || [];
+                qIdx = 0; showQuestion();
+            } catch (e) { document.getElementById('q-text').textContent = 'Quiz error: ' + e.message; }
+        }
+        function showQuestion() {
+            if (qIdx >= quizData.length) { showScore(); return; }
+            const q = quizData[qIdx];
+            document.getElementById('q-prog').textContent = `Question ${qIdx + 1} of ${quizData.length}`;
+            document.getElementById('q-text').textContent = q.question;
+            document.getElementById('q-options').innerHTML = q.options.map((o, i) => `<div class="q-opt" onclick="selectOpt(this,'${o[0]}','${q.answer}')">${o}</div>`).join('');
+            document.getElementById('q-feedback').textContent = '';
+            document.getElementById('next-btn').style.display = 'none';
+        }
+        let correctCount = 0;
+        function selectOpt(el, chosen, ans) {
+            document.querySelectorAll('.q-opt').forEach(o => o.onclick = null);
+            if (chosen === ans) { el.classList.add('correct'); document.getElementById('q-feedback').textContent = '✅ Correct!'; correctCount++; }
+            else { el.classList.add('wrong'); document.getElementById('q-feedback').textContent = '❌ Answer: ' + ans; document.querySelectorAll('.q-opt').forEach(o => { if (o.textContent.startsWith(ans)) o.classList.add('correct'); }); }
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+        function nextQuestion() { qIdx++; showQuestion(); }
+        async function showScore() {
+            document.getElementById('q-options').innerHTML = '';
+            document.getElementById('q-text').textContent = '';
+            document.getElementById('q-prog').textContent = '';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('q-feedback').textContent = '';
+            const sc = document.getElementById('score-card');
+            const msgs = ['Great effort! 🌟', 'Good job! 🎉', 'Excellent! 🏆', 'Perfect score! 🎊'];
+            document.getElementById('score-big').textContent = `${correctCount} / ${quizData.length}`;
+            document.getElementById('score-msg').textContent = correctCount >= 4 ? msgs[3] : correctCount >= 3 ? msgs[1] : msgs[0];
+            sc.style.display = 'block';
+            try { await fetch(`${API}/quiz/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ student: user, grade: +gSel.value, subject: sSel.value, chapter: cSel.value, score: correctCount, total: quizData.length }) }); } catch (e) { }
+            correctCount = 0;
+        }
+        function closeQuiz() { document.getElementById('quiz-modal').classList.remove('on'); }
+
+        // ── Flashcards ──
+        async function startFlashcards() {
+            document.getElementById('fc-modal').classList.add('on');
+            document.getElementById('fc-front').textContent = 'Generating flashcards…';
+            document.getElementById('fc-back').textContent = '';
+            try {
+                const res = await fetch(`${API}/flashcard/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: rawContent, chapter: cSel.value, subject: sSel.value, grade: +gSel.value }) });
+                const data = await res.json();
+                fcData = data.flashcards || [];
+                fcIdx = 0; showCard();
+            } catch (e) { document.getElementById('fc-front').textContent = 'Error: ' + e.message; }
+        }
+        function showCard() {
+            if (!fcData.length) return;
+            document.getElementById('fc-card').classList.remove('flip');
+            document.getElementById('fc-front').textContent = fcData[fcIdx].question;
+            document.getElementById('fc-back').textContent = fcData[fcIdx].answer;
+            document.getElementById('fc-num').textContent = `${fcIdx + 1} / ${fcData.length}`;
+        }
+        function flipCard() { document.getElementById('fc-card').classList.toggle('flip'); }
+        function fcNav(d) { fcIdx = (fcIdx + d + fcData.length) % fcData.length; showCard(); }
+        function closeFc() { document.getElementById('fc-modal').classList.remove('on'); }
+    </script>
+</body>
+
+</html>
