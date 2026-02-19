@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EUREKA – Inclusive Learning Platform</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a1a;
+      --surface: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.1);
+      --primary: #6c63ff;
+      --secondary: #00d4ff;
+      --accent: #ff6b9d;
+      --text: #e8e8ff;
+      --muted: #8888aa;
+      --success: #00e5a0;
+      --card-bg: rgba(20, 20, 50, 0.7);
+    }
+
+    [data-theme="light"] {
+      --bg: #f2f4ff;
+      --surface: rgba(0, 0, 0, 0.04);
+      --border: rgba(0, 0, 0, 0.1);
+      --text: #1a1a3a;
+      --muted: #5555aa;
+      --card-bg: rgba(255, 255, 255, 0.85);
+    }
+
+    [data-theme="light"] .bg-orbs {
+      opacity: 0.12;
+    }
+
+    [data-theme="light"] nav {
+      background: rgba(242, 244, 255, 0.88);
+    }
+
+    [data-theme="light"] .chat-panel {
+      background: rgba(242, 244, 255, 0.97);
+    }
+
+    * {
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── Animated background ─── */
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .orb1 {
+      width: 400px;
+      height: 400px;
+      background: #6c63ff;
+      top: -100px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+
+    .orb2 {
+      width: 300px;
+      height: 300px;
+      background: #00d4ff;
+      top: 50%;
+      right: -100px;
+      animation-delay: 3s;
+    }
+
+    .orb3 {
+      width: 350px;
+      height: 350px;
+      background: #ff6b9d;
+      bottom: -100px;
+      left: 30%;
+      animation-delay: 6s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-30px) scale(1.05);
+      }
+    }
+
+    /* ─── Layout ─── */
+    .page {
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    /* ─── Top nav ─── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(10, 10, 26, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-upload {
+      padding: 8px 18px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      font-weight: 600;
+      font-size: .85rem;
+      border: none;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-upload:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(108, 99, 255, .4);
+    }
+
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 30px;
+      background: rgba(108, 99, 255, .15);
+      border: 1px solid rgba(108, 99, 255, .4);
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: .5px;
+      margin-bottom: 24px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .6
+      }
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 50px;
+    }
+
+    .ticker {
+      width: 100%;
+      max-width: 700px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: .85rem;
+      color: var(--muted);
+      overflow: hidden;
+      margin-bottom: 50px;
+    }
+
+    .ticker-inner {
+      white-space: nowrap;
+      animation: ticker 20s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes ticker {
+      0% {
+        transform: translateX(100%)
+      }
+
+      100% {
+        transform: translateX(-100%)
+      }
+    }
+
+    /* ─── Board buttons ─── */
+    .boards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .board-btn {
+      padding: 18px 36px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all .3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .board-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, .1), transparent);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .board-btn:hover::before {
+      opacity: 1;
+    }
+
+    .board-btn:hover {
+      transform: translateY(-4px);
+    }
+
+    .board-ncert {
+      background: linear-gradient(135deg, #6c63ff, #00d4ff);
+      color: #fff;
+      box-shadow: 0 8px 30px rgba(108, 99, 255, .4);
+    }
+
+    .board-ncert:hover {
+      box-shadow: 0 12px 40px rgba(108, 99, 255, .6);
+    }
+
+    .board-icse {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      color: var(--muted);
+    }
+
+    .board-state {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      color: var(--muted);
+    }
+
+    .upload-section {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .upload-label {
+      font-size: .9rem;
+      color: var(--muted);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 20px 40px;
+      cursor: pointer;
+      transition: all .3s;
+      text-align: center;
+    }
+
+    .upload-label:hover {
+      border-color: var(--primary);
+      color: var(--text);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    /* ─── Grade grid ─── */
+    .section-title {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+      margin-bottom: 36px;
+    }
+
+    .back-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .85rem;
+      transition: all .2s;
+      margin-bottom: 24px;
+      align-self: flex-start;
+      margin-left: 40px;
+    }
+
+    .back-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .grid-container {
+      padding: 0 40px 60px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .grade-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 16px;
+    }
+
+    .grade-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .grade-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(108, 99, 255, .3);
+    }
+
+    .grade-num {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--primary);
+    }
+
+    .grade-label {
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ─── Subject / Chapter cards ─── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .subject-card,
+    .chapter-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      cursor: pointer;
+      transition: all .3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .subject-card:hover,
+    .chapter-card:hover {
+      border-color: var(--secondary);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 212, 255, .2);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .card-sub {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ─── Disability modal ─── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, .7);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn .3s ease;
+    }
+
+    .modal {
+      background: linear-gradient(135deg, rgba(20, 20, 50, .95), rgba(10, 10, 30, .98));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 540px;
+      width: 90%;
+    }
+
+    .modal h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-bottom: 28px;
+    }
+
+    .disability-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .disability-btn {
+      padding: 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      text-align: left;
+      transition: all .2s;
+      color: var(--text);
+    }
+
+    .disability-btn:hover,
+    .disability-btn.selected {
+      border-color: var(--primary);
+      background: rgba(108, 99, 255, .1);
+    }
+
+    .disability-btn .d-icon {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .disability-btn .d-name {
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    .disability-btn .d-desc {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .modal-confirm {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .modal-confirm:hover {
+      transform: scale(1.02);
+    }
+
+    .modal-cancel {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      margin-top: 10px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .9rem;
+      transition: all .2s;
+    }
+
+    .modal-cancel:hover {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+
+    /* ─── Upload modal form ─── */
+    .form-field {
+      margin-bottom: 16px;
+    }
+
+    .form-field label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: .9rem;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+
+    .form-row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .file-pick-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .file-pick-area:hover {
+      border-color: var(--primary);
+      color: var(--text);
+    }
+
+    .file-pick-area.has-file {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    #um-file {
+      display: none;
+    }
+
+    /* ─── Content screen ─── */
+    .content-area {
+      flex: 1;
+      padding: 0 40px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .content-header {
+      margin-bottom: 24px;
+    }
+
+    .content-header h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .content-header p {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .profile-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 700;
+      margin-top: 8px;
+      background: rgba(108, 99, 255, .2);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .content-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .content-box h3 {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 12px;
+    }
+
+    .content-box p {
+      line-height: 1.8;
+      color: var(--text);
+      font-size: .95rem;
+    }
+
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      padding: 20px 0;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .sources-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .source-chip {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: .72rem;
+      background: rgba(0, 212, 255, .1);
+      border: 1px solid rgba(0, 212, 255, .3);
+      color: var(--secondary);
+    }
+
+    /* ─── AI Teacher chat ─── */
+    .chat-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 150;
+      background: rgba(10, 10, 26, .95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      transition: transform .3s ease;
+    }
+
+    .chat-toggle {
+      width: 100%;
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .chat-toggle .ct-icon {
+      font-size: 1.2rem;
+    }
+
+    .chat-toggle .ct-text {
+      font-weight: 700;
+      font-size: .95rem;
+      flex: 1;
+      text-align: left;
+    }
+
+    .chat-toggle .ct-arrow {
+      color: var(--muted);
+      transition: .3s;
+    }
+
+    .chat-panel.open .ct-arrow {
+      transform: rotate(180deg);
+    }
+
+    .chat-body {
+      display: none;
+      padding: 0 40px 20px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .chat-panel.open .chat-body {
+      display: block;
+    }
+
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .msg {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primary), #8b85ff);
+    }
+
+    .msg.ai {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: .9rem;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .chat-input::placeholder {
+      color: var(--muted);
+    }
+
+    .chat-input:focus {
+      border-color: var(--primary);
+    }
+
+    .chat-send {
+      padding: 12px 20px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .chat-send:hover {
+      transform: scale(1.05);
+    }
+
+    /* ─── Coming Soon modal ─── */
+    .coming-soon-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0, 0, 0, .8);
+      backdrop-filter: blur(12px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .coming-soon-modal.open {
+      display: flex;
+      animation: fadeIn .3s;
+    }
+
+    .cs-box {
+      background: linear-gradient(135deg, rgba(20, 20, 50, .98), rgba(10, 10, 30, .99));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 50px 40px;
+      text-align: center;
+    }
+
+    .cs-icon {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+    }
+
+    .cs-box h2 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .cs-box p {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .cs-close {
+      padding: 12px 30px;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .cs-close:hover {
+      border-color: var(--primary);
+    }
+
+    /* ─── Upload feedback toast ─── */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      z-index: 400;
+      background: var(--success);
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: .9rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all .3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <!-- Global hidden file input — shared by all screens -->
+  <input id="fileInput" type="file" accept=".pdf" onchange="uploadPDF(this)" style="display:none" />
+
+  <!-- ═══════════════════════════════════════════
+     SCREEN 1: LANDING
+════════════════════════════════════════════ -->
+  <div class="page">
+
+    <div class="screen active" id="screen-home">
+      <nav>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="nav-right">
+          <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+          <a href="/voice"
+            style="padding:8px 18px;border-radius:30px;background:linear-gradient(135deg,#6c63ff,#ff6b9d);color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;border:none;">👁️
+            Voice Mode</a>
+          <button class="btn-upload" onclick="openUploadModal()">📤 Upload PDF</button>
+        </div>
+      </nav>
+      <div class="hero">
+        <div class="badge">🎓 Track 3B · Inclusive Education</div>
+        <h1>Learn <span>Without Limits</span><br />Powered by AI</h1>
+        <p class="hero-sub">
+          Adaptive, accessible educational content tailored to every learning need.
+          Choose your curriculum and get personalised explanations instantly.
+        </p>
+        <div class="ticker">
+          <span class="ticker-inner">
+            📢 New NCERT Science chapters now available &nbsp;·&nbsp;
+            🏆 Supporting ADHD, Dyslexia, Visual & Hearing impairments &nbsp;·&nbsp;
+            🚀 Powered by RAG + Local AI &nbsp;·&nbsp;
+            📚 Upload your own PDFs for personalised learning &nbsp;·&nbsp;
+            📢 New NCERT Science chapters now available
+          </span>
+        </div>
+        <div class="boards">
+          <button class="board-btn board-ncert" onclick="goGrades()">📘 NCERT</button>
+          <button class="board-btn board-icse" onclick="comingSoon('ICSE')">📗 ICSE</button>
+          <button class="board-btn board-state" onclick="comingSoon('State Board')">📙 State Board</button>
+        </div>
+        <div class="upload-section">
+          <label class="upload-label" for="fileInput">
+            🗂️ Or upload your own content (PDF)<br />
+            <span style="font-size:.75rem;color:var(--muted)">Click to select a file</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+     SCREEN 2: GRADE SELECTION
+════════════════════════════════════════════ -->
+    <div class="screen" id="screen-grades">
+      <nav>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="nav-right"><span style="color:var(--muted);font-size:.9rem">NCERT</span></div>
+      </nav>
+      <div class="grid-container" style="padding-top:40px">
+        <button class="back-btn" onclick="goHome()">← Back</button>
+        <div class="section-title">Select Your Grade</div>
+        <div class="section-sub">NCERT curriculum · Grades 1 to 12</div>
+        <div class="grade-grid" id="grade-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+     SCREEN 3: SUBJECT SELECTION
+════════════════════════════════════════════ -->
+    <div class="screen" id="screen-subjects">
+      <nav>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="nav-right"><span style="color:var(--muted);font-size:.9rem" id="nav-grade"></span></div>
+      </nav>
+      <div class="grid-container" style="padding-top:40px">
+        <button class="back-btn" onclick="goGrades()">← Back</button>
+        <div class="section-title">Choose a Subject</div>
+        <div class="section-sub" id="subject-sub"></div>
+        <div class="card-grid" id="subject-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+     SCREEN 4: CHAPTER SELECTION
+════════════════════════════════════════════ -->
+    <div class="screen" id="screen-chapters">
+      <nav>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="nav-right">
+          <span style="color:var(--muted);font-size:.9rem" id="nav-subject"></span>
+          <label class="btn-upload" for="fileInput" style="font-size:.8rem;padding:7px 14px">📤 Upload for this
+            chapter</label>
+        </div>
+      </nav>
+      <div class="grid-container" style="padding-top:40px">
+        <button class="back-btn" onclick="goSubjects()">← Back</button>
+        <div class="section-title">Select a Chapter</div>
+        <div class="section-sub" id="chapter-sub"></div>
+        <div class="card-grid" id="chapter-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+     SCREEN 5: CONTENT
+════════════════════════════════════════════ -->
+    <div class="screen" id="screen-content">
+      <nav>
+        <div class="logo">⚡ EUREKA</div>
+        <div class="nav-right">
+          <span style="color:var(--muted);font-size:.9rem" id="nav-chapter"></span>
+          <label class="btn-upload" for="fileInput" style="font-size:.8rem;padding:7px 14px">📤 Upload for this
+            chapter</label>
+        </div>
+      </nav>
+      <div class="content-area" style="padding-top:40px">
+        <button class="back-btn" onclick="goChapters()">← Back</button>
+        <div class="content-header">
+          <h2 id="content-title"></h2>
+          <p id="content-sub"></p>
+          <span class="profile-tag" id="content-profile-tag"></span>
+        </div>
+        <div id="content-blocks"></div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+
+  <!-- ═══════════════════════════════════════════
+     UPLOAD PDF MODAL
+═══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="upload-modal">
+    <div class="modal">
+      <h2>📤 Upload Chapter PDF</h2>
+      <p>Tag this PDF with curriculum metadata for accurate retrieval</p>
+      <div class="form-row2">
+        <div class="form-field">
+          <label>Grade</label>
+          <input id="um-grade" type="number" min="1" max="12" class="form-input" placeholder="e.g. 9" />
+        </div>
+        <div class="form-field">
+          <label>Subject</label>
+          <input id="um-subject" type="text" class="form-input" placeholder="e.g. Science" />
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Chapter name</label>
+        <input id="um-chapter" list="um-chapter-list" type="text" class="form-input"
+          placeholder="Type or select chapter name" />
+        <datalist id="um-chapter-list"></datalist>
+      </div>
+      <div class="form-field">
+        <label>PDF File</label>
+        <div class="file-pick-area" id="um-drop" onclick="document.getElementById('um-file').click()">
+          <span id="um-filename">🗂️ Click to choose a PDF</span>
+        </div>
+        <input id="um-file" type="file" accept=".pdf" onchange="onUploadFileChange(this)" />
+      </div>
+      <button class="modal-confirm" onclick="submitUpload()">Upload &amp; Index →</button>
+      <button class="modal-cancel" onclick="closeUploadModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+     DISABILITY MODAL
+════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="disability-modal">
+    <div class="modal">
+      <h2>🎯 Learning Profile</h2>
+      <p>Choose your learning profile to get content adapted to your needs</p>
+      <div class="disability-grid">
+        <button class="disability-btn" onclick="selectProfile('adhd')" id="p-adhd">
+          <span class="d-icon">⚡</span>
+          <div class="d-name">ADHD</div>
+          <div class="d-desc">Short, focused content</div>
+        </button>
+        <button class="disability-btn" onclick="selectProfile('dyslexia')" id="p-dyslexia">
+          <span class="d-icon">📝</span>
+          <div class="d-name">Dyslexia</div>
+          <div class="d-desc">Simple language</div>
+        </button>
+        <button class="disability-btn" onclick="selectProfile('visual_impairment')" id="p-visual_impairment">
+          <span class="d-icon">👁️</span>
+          <div class="d-name">Visual Impairment</div>
+          <div class="d-desc">Audio descriptions</div>
+        </button>
+        <button class="disability-btn" onclick="selectProfile('hearing_impairment')" id="p-hearing_impairment">
+          <span class="d-icon">🔇</span>
+          <div class="d-name">Hearing Impairment</div>
+          <div class="d-desc">Text-rich content</div>
+        </button>
+        <button class="disability-btn" onclick="selectProfile('cognitive')" id="p-cognitive">
+          <span class="d-icon">🧠</span>
+          <div class="d-name">Cognitive</div>
+          <div class="d-desc">ELI5 style</div>
+        </button>
+        <button class="disability-btn" onclick="selectProfile('')" id="p-">
+          <span class="d-icon">✨</span>
+          <div class="d-name">General</div>
+          <div class="d-desc">All output types</div>
+        </button>
+      </div>
+      <button class="modal-confirm" onclick="loadContent()">Generate Content →</button>
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+     COMING SOON MODAL
+════════════════════════════════════════════ -->
+  <div class="coming-soon-modal" id="coming-soon-modal">
+    <div class="cs-box">
+      <div class="cs-icon">🚧</div>
+      <h2 id="cs-title">Coming Soon</h2>
+      <p id="cs-text">We're working hard to bring this curriculum to you!</p>
+      <button class="cs-close" onclick="closeComingSoon()">Got it</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+     AI TEACHER CHAT (sticky bottom)
+════════════════════════════════════════════ -->
+  <div class="chat-panel" id="chat-panel">
+    <button class="chat-toggle" onclick="toggleChat()">
+      <span class="ct-icon">🤖</span>
+      <span class="ct-text">AI Teacher — Ask anything</span>
+      <span class="ct-arrow">▲</span>
+    </button>
+    <div class="chat-body">
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg ai">Hi! I'm your AI teacher. Ask me anything about what you're studying. 📚</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" placeholder="Ask a question..."
+          onkeydown="if(event.key==='Enter')sendChat()" />
+        <button class="chat-send" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Config ───
+    const API = 'http://127.0.0.1:8001';
+
+    // ─── Theme ───
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isLight = html.getAttribute('data-theme') === 'light';
+      html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
+      localStorage.setItem('eureka-theme', isLight ? 'dark' : 'light');
+    }
+    // Restore saved theme on load
+    (function () {
+      const saved = localStorage.getItem('eureka-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('theme-btn');
+        if (btn) btn.textContent = saved === 'light' ? '☀️' : '🌙';
+      });
+    })();
+
+    // ─── State ───
+    let selectedGrade = null;
+    let selectedSubject = null;
+    let selectedChapter = null;
+    let selectedProfile = null;
+
+    // ─── Data ───
+    const subjectsByGrade = {
+      range: [1, 2, 3, 4, 5],
+      primary: ['English', 'Mathematics', 'Environmental Science', 'Hindi', 'Art & Craft'],
+      middle: ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Sanskrit'],
+      secondary: ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi'],
+      senior: ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'English', 'Computer Science'],
+    };
+
+    const subjectIcons = {
+      'English': '📖', 'Mathematics': '📐', 'Science': '🔬', 'Social Science': '🌍',
+      'Hindi': '🇮🇳', 'Sanskrit': '📜', 'Physics': '⚡', 'Chemistry': '⚗️',
+      'Biology': '🌿', 'Computer Science': '💻', 'Art & Craft': '🎨',
+      'Environmental Science': '🌳',
+    };
+
+    const chaptersBySubject = {
+      'Science': [
+        'Chemical Reactions and Equations',
+        'Acids, Bases and Salts',
+        'Metals and Non-metals',
+        'Carbon and its Compounds',
+        'Control and Coordination',
+        'Light – Reflection and Refraction',
+        'Electricity',
+      ],
+      'Social Science': [
+        'Nazism and the Rise of Hitler',
+        'The French Revolution',
+        'Socialism in Europe',
+        'Forest Society and Colonialism',
+        'Pastoralists in the Modern World',
+      ],
+      'Mathematics': [
+        'Real Numbers', 'Polynomials', 'Pair of Linear Equations',
+        'Quadratic Equations', 'Arithmetic Progressions', 'Triangles', 'Coordinate Geometry',
+      ],
+      'Physics': [
+        'Electric Charges and Fields', 'Electrostatic Potential', 'Current Electricity',
+        'Moving Charges and Magnetism', 'Electromagnetic Induction', 'Optics', 'Dual Nature of Radiation',
+      ],
+      'Chemistry': [
+        'The Solid State', 'Solutions', 'Electrochemistry',
+        'Chemical Kinetics', 'Surface Chemistry', 'Isolation of Elements',
+      ],
+      'Biology': [
+        'Reproduction in Organisms', 'Sexual Reproduction in Flowering Plants',
+        'Human Reproduction', 'Molecular Basis of Inheritance',
+        'Evolution', 'Human Health and Disease', 'Biotechnology',
+      ],
+      'English': [
+        'A Letter to God', 'Nelson Mandela – Long Walk to Freedom',
+        'Two Stories about Flying', 'From the Diary of Anne Frank', 'Glimpses of India',
+      ],
+      'Hindi': [
+        'सूरदास के पद', 'राम-लक्ष्मण-परशुराम संवाद', 'सवैये', 'आत्मत्राण', 'यह दंतुरहित मुस्कान',
+      ],
+    };
+
+    // ─── Screen routing ───
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    function goHome() { showScreen('screen-home'); }
+    function goGrades() {
+      buildGrades();
+      showScreen('screen-grades');
+    }
+    function goSubjects() { showScreen('screen-subjects'); }
+    function goChapters() { showScreen('screen-chapters'); }
+
+    // ─── Grade grid ───
+    function buildGrades() {
+      const g = document.getElementById('grade-grid');
+      g.innerHTML = '';
+      for (let i = 1; i <= 12; i++) {
+        g.innerHTML += `
+        <div class="grade-card" onclick="pickGrade(${i})">
+          <div class="grade-num">${i}</div>
+          <div class="grade-label">Grade</div>
+        </div>`;
+      }
+    }
+
+    function pickGrade(n) {
+      selectedGrade = n;
+      document.getElementById('nav-grade').textContent = `NCERT · Grade ${n}`;
+      document.getElementById('subject-sub').textContent = `Grade ${n} NCERT subjects`;
+      const subjects = n <= 5 ? subjectsByGrade.primary
+        : n <= 8 ? subjectsByGrade.middle
+          : n <= 10 ? subjectsByGrade.secondary
+            : subjectsByGrade.senior;
+
+      const grid = document.getElementById('subject-grid');
+      grid.innerHTML = subjects.map(s => `
+      <div class="subject-card" onclick="pickSubject('${s}')">
+        <div class="card-icon">${subjectIcons[s] || '📚'}</div>
+        <div class="card-title">${s}</div>
+        <div class="card-sub">NCERT Grade ${n}</div>
+      </div>`).join('');
+      showScreen('screen-subjects');
+    }
+
+    function pickSubject(s) {
+      selectedSubject = s;
+      document.getElementById('nav-subject').textContent = s;
+      document.getElementById('chapter-sub').textContent = `${s} · Grade ${selectedGrade}`;
+      const chapters = chaptersBySubject[s] || [
+        'Chapter 1', 'Chapter 2', 'Chapter 3', 'Chapter 4', 'Chapter 5',
+      ];
+      const grid = document.getElementById('chapter-grid');
+      grid.innerHTML = chapters.map((c, i) => `
+      <div class="chapter-card" onclick="pickChapter('${c.replace(/'/g, "\\'")}')">
+        <div class="card-icon">${['📄', '📝', '✏️', '📑', '🗒️', '📋', '📰'][i % 7]}</div>
+        <div class="card-title">${c}</div>
+        <div class="card-sub">Chapter ${i + 1}</div>
+      </div>`).join('');
+      showScreen('screen-chapters');
+    }
+
+    function pickChapter(c) {
+      selectedChapter = c;
+      openModal();
+    }
+
+    // ─── Disability modal ───
+    function openModal() {
+      selectedProfile = null;
+      document.querySelectorAll('.disability-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('disability-modal').classList.add('open');
+    }
+    function closeModal() {
+      document.getElementById('disability-modal').classList.remove('open');
+    }
+    function selectProfile(p) {
+      selectedProfile = p;
+      document.querySelectorAll('.disability-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('p-' + p).classList.add('selected');
+    }
+
+    async function loadContent() {
+      if (selectedProfile === null) { alert('Please select a learning profile'); return; }
+      closeModal();
+      showScreen('screen-content');
+      document.getElementById('content-title').textContent = selectedChapter;
+      document.getElementById('content-sub').textContent = `${selectedSubject} · Grade ${selectedGrade}`;
+      document.getElementById('nav-chapter').textContent = selectedChapter;
+      const profileName = selectedProfile
+        ? selectedProfile.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+        : 'General';
+      document.getElementById('content-profile-tag').textContent = `🎯 ${profileName}`;
+
+      const blocks = document.getElementById('content-blocks');
+      blocks.innerHTML = `<div class="loading-spinner"><div class="spinner"></div> Generating adaptive content…</div>`;
+
+      try {
+        const res = await fetch(`${API}/adapt`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: `Explain the chapter "${selectedChapter}" from ${selectedSubject} Grade ${selectedGrade} NCERT.`,
+            disability_profile: selectedProfile || undefined,
+            grade: selectedGrade,
+            subject: selectedSubject,
+            chapter: selectedChapter,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'API Error');
+        renderContent(data);
+      } catch (e) {
+        blocks.innerHTML = `<div class="content-box"><p style="color:#ff6b9d">Error: ${e.message}</p></div>`;
+      }
+    }
+
+    function renderContent(data) {
+      const blocks = document.getElementById('content-blocks');
+      const md = t => marked.parse(t || '');
+      let html = '';
+      if (data.simplified) html += `
+      <div class="content-box">
+        <h3>📝 Simplified Explanation</h3>
+        <div>${md(data.simplified)}</div>
+      </div>`;
+      if (data.visual_description) html += `
+      <div class="content-box">
+        <h3>👁️ Visual Description</h3>
+        <div>${md(data.visual_description)}</div>
+      </div>`;
+      if (data.tts_script) html += `
+      <div class="content-box">
+        <h3>🔊 Audio Script (TTS)</h3>
+        <div>${md(data.tts_script)}</div>
+      </div>`;
+      if (data.sources?.length) html += `
+      <div class="content-box">
+        <h3>📚 Sources</h3>
+        <div class="sources-list">${data.sources.map(s => `<span class="source-chip">${s}</span>`).join('')}</div>
+      </div>`;
+      blocks.innerHTML = html || '<div class="content-box"><p>No content returned.</p></div>';
+    }
+
+    // ─── Coming soon ───
+    function comingSoon(name) {
+      document.getElementById('cs-title').textContent = `${name} — Coming Soon!`;
+      document.getElementById('cs-text').textContent = `We're working hard to bring ${name} curriculum. Stay tuned!`;
+      document.getElementById('coming-soon-modal').classList.add('open');
+    }
+    function closeComingSoon() {
+      document.getElementById('coming-soon-modal').classList.remove('open');
+    }
+
+    // ─── Chat ───
+    function toggleChat() {
+      document.getElementById('chat-panel').classList.toggle('open');
+    }
+
+    async function sendChat() {
+      const input = document.getElementById('chat-input');
+      const query = input.value.trim();
+      if (!query) return;
+      input.value = '';
+
+      const msgs = document.getElementById('chat-messages');
+      msgs.innerHTML += `<div class="msg user">${query}</div>`;
+      msgs.innerHTML += `<div class="msg ai" id="thinking"><div class="loading-spinner" style="padding:0"><div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Thinking…</div></div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+
+      try {
+        const res = await fetch(`${API}/adapt`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query,
+            disability_profile: selectedProfile || undefined,
+            grade: selectedGrade || undefined,
+            subject: selectedSubject || undefined,
+            chapter: selectedChapter || undefined,
+          }),
+        });
+        const data = await res.json();
+        const answer = data.simplified || data.visual_description || data.tts_script || 'No answer returned.';
+        document.getElementById('thinking').innerHTML = marked.parse(answer);
+      } catch (e) {
+        document.getElementById('thinking').innerHTML = `<span style="color:#ff6b9d">Error: ${e.message}</span>`;
+      }
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    // ─── PDF upload ───
+
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = isError ? '#ff6b9d' : 'var(--success)';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+    // ─── Upload modal ───
+    function openUploadModal() {
+      document.getElementById('um-grade').value = selectedGrade || '';
+      document.getElementById('um-subject').value = selectedSubject || '';
+      const chapterInput = document.getElementById('um-chapter');
+      chapterInput.value = selectedChapter || '';
+      // Populate chapter datalist suggestions
+      const dl = document.getElementById('um-chapter-list');
+      const chapters = selectedSubject ? (chaptersBySubject[selectedSubject] || []) : [];
+      dl.innerHTML = chapters.map(c => `<option value="${c}">`).join('');
+      // Reset file
+      document.getElementById('um-file').value = '';
+      document.getElementById('um-filename').textContent = '🗂️ Click to choose a PDF';
+      document.getElementById('um-drop').classList.remove('has-file');
+      document.getElementById('upload-modal').classList.add('open');
+    }
+    function closeUploadModal() {
+      document.getElementById('upload-modal').classList.remove('open');
+    }
+    function onUploadFileChange(input) {
+      const name = input.files[0]?.name || '';
+      const el = document.getElementById('um-filename');
+      const drop = document.getElementById('um-drop');
+      if (name) { el.textContent = '✅ ' + name; drop.classList.add('has-file'); }
+      else { el.textContent = '🗂️ Click to choose a PDF'; drop.classList.remove('has-file'); }
+    }
+    async function submitUpload() {
+      const grade = document.getElementById('um-grade').value;
+      const subject = document.getElementById('um-subject').value;
+      const chapter = document.getElementById('um-chapter').value;
+      const fileInput = document.getElementById('um-file');
+      if (!fileInput.files[0]) { alert('Please select a PDF file'); return; }
+      closeUploadModal();
+      showToast(`⏳ Uploading ${fileInput.files[0].name}…`);
+      const form = new FormData();
+      form.append('file', fileInput.files[0]);
+      if (grade) form.append('grade', grade);
+      if (subject) form.append('subject', subject);
+      if (chapter) form.append('chapter', chapter);
+      try {
+        const res = await fetch(`${API}/ingest`, { method: 'POST', body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail);
+        showToast(`✅ ${data.chunks_indexed} chunks indexed → ${chapter || subject} Grade ${grade}`);
+      } catch (e) {
+        showToast(`❌ ${e.message}`, true);
+      }
+    }
+
+  </script>
+</body>
+
+</html>

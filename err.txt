@@ -1,0 +1,28 @@
+﻿
+==================================
+= ERRORS =========================
+===========
+__________________ ERROR 
+collecting 
+tests/test_endpoints.py 
+___________________
+ImportError while importing test 
+module 'C:\Users\vnykj\OneDrive\De
+sktop\EUREKA\tests\test_endpoints.
+py'.
+..\..\..\AppData\Local\Programs\Py
+thon\Python314\Lib\importlib\__ini
+t__.py:88: in import_module
+    return _bootstrap._gcd_import(
+name[level:], package, level)
+    from langchain.schema import 
+Document
+E   ModuleNotFoundError: No 
+module named 'langchain.schema'
+ERROR tests/test_endpoints.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 
+1 error during collection 
+!!!!!!!!!!!!!!!!!!!!
+1 error in 0.18s
+
+
