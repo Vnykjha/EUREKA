@@ -3,7 +3,7 @@
    ═══════════════════════════════════════════════ */
 
 // ─── STATE ───
-const state = { profile: '', curriculum: 'ncert', grade: null, subject: '', chapter: '' };
+const state = { profile: '', curriculum: 'ncert', grade: null, subject: '', chapter: '', lastApiResponse: null };
 
 const PROFILE_LABELS = {
   adhd: '⚡ ADHD', dyslexia: '📖 Dyslexia',
@@ -110,6 +110,13 @@ function goHome() {
   showScreen('s-home');
 }
 
+function signOut() {
+  localStorage.removeItem('eureka_token');
+  localStorage.removeItem('eureka_user');
+  localStorage.removeItem('eureka_role');
+  window.location.href = '/login';
+}
+
 // ─── HOME: PROFILE CARD ANIMATIONS + MAGNETIC SLIDER ───
 document.addEventListener('DOMContentLoaded', () => {
   const perspective = document.getElementById('carousel-perspective');
@@ -193,6 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     card.addEventListener('mouseleave', () => clearTimeout(hoverTimer));
   });
+
+  // ── Auto-select profile from query param (e.g. /learn?profile=adhd from student page) ──
+  const urlProfile = new URLSearchParams(window.location.search).get('profile');
+  if (urlProfile) {
+    const idx = cards.findIndex(c => c.dataset.profile === urlProfile);
+    if (idx !== -1) {
+      current = idx;
+      applyPositions(idx, true);
+      setTimeout(() => selectProfile(urlProfile), 400);
+    }
+  }
 });
 
 function selectProfile(profile) {
@@ -333,6 +351,7 @@ async function fetchAdaptedPreview(chapter) {
       return;
     }
     const data = await res.json();
+    state.lastApiResponse = data;
     renderPreview(chapter, data);
   } catch (err) {
     content.innerHTML = `<div class="preview-title" style="color:#f05050">⚠️ Error</div><p style="color:var(--text2);font-size:.85rem">${err.message}</p>`;
@@ -438,6 +457,247 @@ async function doUpload() {
   } finally {
     btn.textContent = '⬆ Upload & Index'; btn.disabled = false;
   }
+}
+
+// ─── QUIZ & FLASHCARDS ───
+async function startQuiz() {
+  if (!state.chapter) { toast('Please select a chapter first', 'err'); return; }
+  if (!state.lastApiResponse) { toast('Please fetch chapter content first', 'err'); return; }
+  
+  // Reconstruct content from the API response
+  let content = '';
+  const resp = state.lastApiResponse;
+  if (resp.simplified) content += resp.simplified + '\n\n';
+  if (resp.visual_description) content += resp.visual_description + '\n\n';
+  if (resp.tts_script) content += resp.tts_script;
+  
+  if (!content.trim()) { toast('No content available for quiz', 'err'); return; }
+  
+  const btn = document.getElementById('quiz-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating…';
+  
+  try {
+    const res = await fetch('/quiz/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: content.substring(0, 2500),
+        chapter: state.chapter,
+        subject: state.subject,
+        grade: state.grade
+      })
+    });
+    
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.detail || 'Quiz generation failed');
+    }
+    
+    const data = await res.json();
+    if (data.questions && data.questions.length > 0) {
+      showQuizModal(data.questions);
+      toast('Quiz ready! Start answering →', 'ok');
+    } else {
+      toast('Could not generate quiz questions', 'err');
+    }
+  } catch (err) {
+    toast('Quiz error: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📝 Quiz';
+  }
+}
+
+async function startFlashcards() {
+  if (!state.chapter) { toast('Please select a chapter first', 'err'); return; }
+  if (!state.lastApiResponse) { toast('Please fetch chapter content first', 'err'); return; }
+  
+  // Reconstruct content from the API response
+  let content = '';
+  const resp = state.lastApiResponse;
+  if (resp.simplified) content += resp.simplified + '\n\n';
+  if (resp.visual_description) content += resp.visual_description + '\n\n';
+  if (resp.tts_script) content += resp.tts_script;
+  
+  if (!content.trim()) { toast('No content available for flashcards', 'err'); return; }
+  
+  const btn = document.getElementById('flashcard-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating…';
+  
+  try {
+    const res = await fetch('/flashcard/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: content.substring(0, 2500),
+        chapter: state.chapter,
+        subject: state.subject,
+        grade: state.grade
+      })
+    });
+    
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.detail || 'Flashcard generation failed');
+    }
+    
+    const data = await res.json();
+    if (data.flashcards && data.flashcards.length > 0) {
+      showFlashcardModal(data.flashcards);
+      toast('Flashcards ready! Start studying →', 'ok');
+    } else {
+      toast('Could not generate flashcards', 'err');
+    }
+  } catch (err) {
+    toast('Flashcard error: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🃏 Flashcards';
+  }
+}
+
+let quizCurrentIdx = 0, quizAnswers = [], quizQuestions = [];
+
+function showQuizModal(questions) {
+  quizCurrentIdx = 0;
+  quizQuestions = questions;
+  quizAnswers = new Array(questions.length).fill(null);
+  
+  const modal = document.createElement('div');
+  modal.id = 'quiz-modal';
+  modal.style.cssText = `
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex;
+    align-items: center; justify-content: center; z-index: 500;
+  `;
+  
+  function renderQuestion() {
+    const q = quizQuestions[quizCurrentIdx];
+    let html = `
+      <div style="background: #111122; border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 32px; width: 90%; max-width: 600px;">
+        <div style="font-size: .75rem; color: rgba(255,255,255,0.5); margin-bottom: 16px;">
+          Question ${quizCurrentIdx + 1} of ${quizQuestions.length}
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; color: #f0f0ff;">
+          ${q.question}
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;" id="quiz-options">
+          ${q.options.map((opt, i) => `
+            <label style="display: flex; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; background: ${quizAnswers[quizCurrentIdx] === opt ? 'rgba(124, 109, 240, 0.3)' : 'transparent'};" class="quiz-option">
+              <input type="radio" name="quiz-answer" data-opt-idx="${i}" style="margin-right: 12px; cursor: pointer;" ${quizAnswers[quizCurrentIdx] === opt ? 'checked' : ''} />
+              <span>${opt}</span>
+            </label>
+          `).join('')}
+        </div>
+        <div style="display: flex; gap: 12px;">
+          ${quizCurrentIdx > 0 ? `<button id="quiz-prev" style="flex: 1; padding: 11px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); font-weight: 600; cursor: pointer;">← Previous</button>` : ''}
+          <button id="quiz-next" style="flex: ${quizCurrentIdx > 0 ? 1 : 2}; padding: 11px; border-radius: 8px; background: linear-gradient(135deg, #7c6df0, #58a6ff); color: #fff; font-weight: 700; cursor: pointer; border: none;">
+            ${quizCurrentIdx < quizQuestions.length - 1 ? 'Next →' : 'Submit'}
+          </button>
+        </div>
+      </div>
+    `;
+    modal.innerHTML = html;
+    
+    // Add event listeners
+    const inputs = modal.querySelectorAll('input[type="radio"]');
+    inputs.forEach(inp => {
+      inp.addEventListener('change', (e) => {
+        const idx = parseInt(e.target.getAttribute('data-opt-idx'));
+        quizAnswers[quizCurrentIdx] = quizQuestions[quizCurrentIdx].options[idx];
+        // Update UI
+        modal.querySelectorAll('.quiz-option').forEach((label, i) => {
+          label.style.background = i === idx ? 'rgba(124, 109, 240, 0.3)' : 'transparent';
+        });
+      });
+    });
+    
+    const prevBtn = modal.getElementById('quiz-prev');
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        quizCurrentIdx--;
+        renderQuestion();
+      });
+    }
+    
+    modal.getElementById('quiz-next').addEventListener('click', () => {
+      if (quizCurrentIdx < quizQuestions.length - 1) {
+        quizCurrentIdx++;
+        renderQuestion();
+      } else {
+        showQuizResults();
+      }
+    });
+  }
+  
+  function showQuizResults() {
+    let score = 0;
+    quizQuestions.forEach((q, i) => {
+      if (quizAnswers[i] === q.answer) score++;
+    });
+    
+    modal.innerHTML = `
+      <div style="background: #111122; border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 40px; width: 90%; max-width: 600px; text-align: center;">
+        <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #7c6df0, #58a6ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px;">
+          ${score}/${quizQuestions.length}
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; color: #f0f0ff;">Great job!</div>
+        <p style="color: rgba(255,255,255,0.6); font-size: .9rem; margin-bottom: 32px; line-height: 1.6;">You got ${score} out of ${quizQuestions.length} questions correct. Keep practicing to master this chapter!</p>
+        <button id="quiz-close" style="padding: 11px 24px; border-radius: 8px; background: linear-gradient(135deg, #7c6df0, #58a6ff); color: #fff; font-weight: 700; cursor: pointer; border: none;">Close</button>
+      </div>
+    `;
+    
+    modal.getElementById('quiz-close').addEventListener('click', () => {
+      modal.remove();
+    });
+  }
+  
+  document.body.appendChild(modal);
+  modal.onclick = (e) => e.target === modal && modal.remove();
+  renderQuestion();
+}
+
+let flashcardIdx = 0, flashcardFlipped = false;
+function showFlashcardModal(flashcards) {
+  flashcardIdx = 0;
+  flashcardFlipped = false;
+  
+  const modal = document.createElement('div');
+  modal.id = 'flashcard-modal';
+  modal.style.cssText = `
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex;
+    align-items: center; justify-content: center; z-index: 500;
+  `;
+  
+  function renderCard() {
+    const card = flashcards[flashcardIdx];
+    modal.innerHTML = `
+      <div style="width: 90%; max-width: 600px;">
+        <div style="text-align: center; color: rgba(255,255,255,0.5); font-size: .85rem; margin-bottom: 16px;">
+          Card ${flashcardIdx + 1} of ${flashcards.length}
+        </div>
+        <div style="background: linear-gradient(135deg, rgba(124,109,240,0.2), rgba(88,166,255,0.2)); border: 2px solid rgba(88,166,255,0.3); border-radius: 16px; padding: 40px 24px; text-align: center; cursor: pointer; min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s;" onclick="flashcardFlipped = !flashcardFlipped; renderCard()" id="fc-card">
+          <div style="font-size: .75rem; color: rgba(255,255,255,0.4); margin-bottom: 16px; text-transform: uppercase;">
+            ${flashcardFlipped ? 'Answer' : 'Question'}
+          </div>
+          <div style="font-size: 1.2rem; font-weight: 600; color: #f0f0ff; line-height: 1.6;">
+            ${flashcardFlipped ? card.answer : card.question}
+          </div>
+          <div style="font-size: .75rem; color: rgba(255,255,255,0.3); margin-top: 20px;">Click to flip</div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button onclick="flashcardIdx = Math.max(0, flashcardIdx-1); flashcardFlipped = false; renderCard()" style="flex: 1; padding: 11px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); font-weight: 600; cursor: pointer;" ${flashcardIdx === 0 ? 'disabled' : ''}>← Prev</button>
+          <button onclick="flashcardIdx = Math.min(${flashcards.length - 1}, flashcardIdx+1); flashcardFlipped = false; renderCard()" style="flex: 1; padding: 11px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); font-weight: 600; cursor: pointer;" ${flashcardIdx === flashcards.length - 1 ? 'disabled' : ''}>Next →</button>
+          <button onclick="document.getElementById('flashcard-modal').remove()" style="flex: 1; padding: 11px; border-radius: 8px; background: linear-gradient(135deg, #7c6df0, #58a6ff); color: #fff; font-weight: 700; cursor: pointer; border: none;">Done</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  document.body.appendChild(modal);
+  modal.onclick = (e) => e.target === modal && modal.remove();
+  renderCard();
 }
 
 // ─── TOAST ───

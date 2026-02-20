@@ -9,6 +9,7 @@ from langchain_groq import ChatGroq
 from config import settings
 from rag.pedagogy_store import retrieve_pedagogy
 from rag.prompts import (
+    ADHD_PROMPT,
     SIMPLIFIED_PROMPT,
     TTS_SCRIPT_PROMPT,
     VISUAL_DESCRIPTION_PROMPT,
@@ -22,7 +23,7 @@ router = APIRouter()
 # None (no profile provided) runs all three chains.
 PROFILE_CHAINS: Dict[Optional[str], List[str]] = {
     "dyslexia": ["simplified"],
-    "adhd": ["simplified"],
+    "adhd": ["adhd_simplified"],
     "cognitive": ["simplified", "tts_script"],
     "visual_impairment": ["visual_description", "tts_script"],
     "hearing_impairment": ["simplified", "visual_description"],
@@ -30,6 +31,7 @@ PROFILE_CHAINS: Dict[Optional[str], List[str]] = {
 }
 
 _CHAIN_PROMPTS = {
+    "adhd_simplified": ADHD_PROMPT,
     "simplified": SIMPLIFIED_PROMPT,
     "visual_description": VISUAL_DESCRIPTION_PROMPT,
     "tts_script": TTS_SCRIPT_PROMPT,
@@ -84,17 +86,38 @@ async def adapt(request: AdaptRequest) -> AdaptResponse:
         HTTPException 500: LLM call failed.
     """
     docs = retrieve_with_feedback(request.query, chapter=request.chapter)
-    if not docs:
-        raise HTTPException(
-            status_code=404,
-            detail=(
-                "No relevant content found. "
-                "Please ingest educational PDFs first via POST /ingest."
-            ),
-        )
 
-    content_context = "\n\n".join(doc.page_content for doc in docs)
-    sources = list({doc.metadata.get("source", "unknown") for doc in docs})
+    # ── Fallback: no PDF indexed for this chapter ──────────────────────────────
+    # Instead of returning a 404 or using unrelated chunks, let the LLM generate
+    # from its own NCERT knowledge when we can identify the curriculum context.
+    if not docs:
+        curriculum_parts = []
+        if request.grade:
+            curriculum_parts.append(f"NCERT Class {request.grade}")
+        if request.subject:
+            curriculum_parts.append(request.subject)
+        if request.chapter:
+            curriculum_parts.append(f"chapter '{request.chapter}'")
+
+        if curriculum_parts:
+            content_context = (
+                f"[No PDF uploaded for this chapter. "
+                f"Use your knowledge of {', '.join(curriculum_parts)} "
+                f"from the NCERT textbook to answer accurately and completely. "
+                f"Do NOT invent content from other chapters or grades.]"
+            )
+            sources: list[str] = []
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "No relevant content found. "
+                    "Please ingest educational PDFs first via POST /ingest."
+                ),
+            )
+    else:
+        content_context = "\n\n".join(doc.page_content for doc in docs)
+        sources = list({doc.metadata.get("source", "unknown") for doc in docs})
 
     # Pedagogy analogies are only useful for STEM — skip for humanities subjects
     _STEM = {"science", "mathematics", "physics", "chemistry", "biology",
@@ -134,7 +157,7 @@ async def adapt(request: AdaptRequest) -> AdaptResponse:
     result_map = dict(zip(task_keys, results))
 
     return AdaptResponse(
-        simplified=result_map.get("simplified"),
+        simplified=result_map.get("adhd_simplified") or result_map.get("simplified"),
         visual_description=result_map.get("visual_description"),
         tts_script=result_map.get("tts_script"),
         sources=sources,

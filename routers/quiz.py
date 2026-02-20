@@ -16,7 +16,7 @@ router = APIRouter(prefix="/quiz", tags=["Quiz"])
 
 RESULTS_FILE = Path(__file__).parent.parent / "quiz_results.json"
 
-llm = ChatGroq(model="llama3-8b-8192", api_key=settings.groq_api_key, temperature=0.4)
+llm = ChatGroq(model="llama-3.1-8b-instant", api_key=settings.groq_api_key, temperature=0.4)
 
 
 # ── Schemas ────────────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-store" />
     <title>EUREKA — ADHD Mode</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
     <style>
@@ -435,6 +436,154 @@
             font-size: .82rem;
             color: rgba(255, 255, 255, .4);
         }
+
+        /* ── CHUNK / CHECKPOINT FLOW ── */
+        .chunk-card {
+            border: 1px solid var(--br);
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 18px;
+            transition: all .3s;
+        }
+
+        .chunk-card.locked {
+            opacity: .35;
+            pointer-events: none;
+        }
+
+        .chunk-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,.04);
+            font-weight: 700;
+            font-size: .95rem;
+        }
+
+        .chunk-header .step-badge {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(251,191,36,.15);
+            border: 1px solid rgba(251,191,36,.35);
+            color: #fbbf24;
+            font-size: .75rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chunk-header .step-badge.done-badge {
+            background: rgba(0,230,118,.15);
+            border-color: rgba(0,230,118,.35);
+            color: #00e676;
+        }
+
+        .chunk-body {
+            padding: 0 18px 18px;
+        }
+
+        /* Checkpoint card */
+        .cp-card {
+            background: rgba(108,99,255,.08);
+            border: 1px solid rgba(108,99,255,.25);
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+
+        .cp-label {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: #a5a0ff;
+            margin-bottom: 10px;
+        }
+
+        .cp-q {
+            font-size: .95rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        .cp-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .cp-opt {
+            padding: 10px 14px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--br);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: .88rem;
+            transition: all .2s;
+        }
+
+        .cp-opt:hover:not(.locked-opt) {
+            border-color: rgba(108,99,255,.5);
+            background: rgba(108,99,255,.1);
+        }
+
+        .cp-opt.cp-correct {
+            border-color: #00e676;
+            background: rgba(0,230,118,.12);
+            color: #00e676;
+        }
+
+        .cp-opt.cp-wrong {
+            border-color: #ff6b9d;
+            background: rgba(255,107,157,.1);
+            color: #ff6b9d;
+        }
+
+        .cp-opt.locked-opt { pointer-events: none; }
+
+        .cp-feedback {
+            font-size: .82rem;
+            min-height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .next-chunk-btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #6c63ff, #5b8def);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .88rem;
+            transition: transform .15s;
+        }
+
+        .next-chunk-btn:hover { transform: translateY(-2px); }
+
+        .ready-btn {
+            margin-top: 14px;
+            padding: 10px 22px;
+            background: rgba(251,191,36,.12);
+            border: 1px solid rgba(251,191,36,.35);
+            border-radius: 10px;
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: .88rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all .2s;
+        }
+
+        .ready-btn:hover {
+            background: rgba(251,191,36,.2);
+        }
     </style>
 </head>
 
@@ -509,7 +658,7 @@
     </div>
 
     <script>
-        const API = 'http://127.0.0.1:8001';
+        const API = 'http://127.0.0.1:8000';
         const user = localStorage.getItem('eureka_user') || 'Student';
         if (!localStorage.getItem('eureka_token')) window.location.href = '/login';
 
@@ -527,48 +676,203 @@
         };
 
         const gSel = document.getElementById('sel-grade'), sSel = document.getElementById('sel-subject'), cSel = document.getElementById('sel-chapter');
-        [6, 7, 8, 9, 10, 11, 12].forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = 'Grade ' + g; gSel.appendChild(o); });
+        [6,7,8,9,10,11,12].forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = 'Grade ' + g; gSel.appendChild(o); });
         gSel.addEventListener('change', () => { sSel.innerHTML = '<option value="">Subject</option>'; const g = +gSel.value; const list = g >= 11 ? SUBJECTS.senior : SUBJECTS.lower; list.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sSel.appendChild(o); }); cSel.innerHTML = '<option value="">Chapter</option>'; });
         sSel.addEventListener('change', () => { cSel.innerHTML = '<option value="">Chapter</option>'; const list = CHAPTERS[sSel.value] || []; list.forEach((c, i) => { const o = document.createElement('option'); o.value = c; o.textContent = (i + 1) + '. ' + c; cSel.appendChild(o); }); });
 
-        let rawContent = '', bullets = [], quizData = [], fcData = [], qIdx = 0, fcIdx = 0;
+        let rawContent = '', chunks = [], quizData = [], fcData = [], qIdx = 0, fcIdx = 0;
+
+        // ── Parse LLM output into chunks [{heading, bullets, checkpoint}] ──
+        function parseChunks(text) {
+            let clean = text.replace(/\r\n/g, '\n');
+            // Ensure markers are on their own line
+            clean = clean.replace(/(\[(?:SECTION|CHECKPOINT)\])/gi, '\n$1\n');
+
+            const result = [];
+            const sections = clean.split(/\[SECTION\]/i).filter(s => s.trim());
+
+            for (const section of sections) {
+                const parts = section.split(/\[CHECKPOINT\]/i);
+                const bodyText = parts[0] || '';
+                const checkText = parts[1] || '';
+
+                const headingMatch = bodyText.match(/Heading:\s*(.+)/i);
+                const heading = headingMatch ? headingMatch[1].replace(/\*\*/g, '').trim() : 'Section';
+
+                // Accept -, •, *, or numbered bullets
+                const bullets = bodyText.split('\n')
+                    .filter(l => /^\s*[-\u2022*]|^\s*\d+[.)]/u.test(l))
+                    .map(l => l.replace(/^\s*[-\u2022*\d.)]+\s*/u, '').trim())
+                    .map(l => l.replace(/^Heading:\s*/i, '').trim())
+                    .filter(l => l.length > 4);
+
+                let checkpoint = null;
+                if (checkText.trim()) {
+                    const ansMatch = checkText.match(/ANS:\s*([a-d])/i);
+                    const qLineMatch = checkText.match(/Q:\s*(.*)/i);
+                    if (qLineMatch && ansMatch) {
+                        const qLine = qLineMatch[1];
+                        const qText = qLine.replace(/\s*a\s*\).*/i, '').replace(/ANS:\s*[a-d]/i, '').trim();
+                        let optsStr = (qLine.match(/a\s*\).+/i) || [])[0]
+                            || (checkText.split('\n').find(l => /\ba\s*\)/i.test(l)) || '');
+                        optsStr = optsStr.replace(/ANS:\s*[a-d]/gi, '').trim();
+                        const options = optsStr.split('|').map(o => o.trim()).filter(Boolean);
+                        if (qText && options.length >= 2) {
+                            checkpoint = { q: qText, options, ans: ansMatch[1].toLowerCase() };
+                        }
+                    }
+                }
+                if (bullets.length) result.push({ heading, bullets, checkpoint });
+            }
+
+            // Fallback: one plain chunk
+            if (!result.length) {
+                const bullets = clean.split('\n')
+                    .filter(l => /^\s*[-\u2022*]|^\s*\d+[.)]/u.test(l))
+                    .map(l => l.replace(/^\s*[-\u2022*\d.)]+\s*/u, '').trim())
+                    .filter(l => l.length > 4)
+                    .slice(0, 14);
+                result.push({ heading: cSel.value, bullets, checkpoint: null });
+            }
+            return result;
+        }
 
         async function loadContent() {
             const grade = +gSel.value, subject = sSel.value, chapter = cSel.value;
             if (!grade || !subject || !chapter) { alert('Please select all fields'); return; }
             document.getElementById('content-area').innerHTML = '<div class="loading"><div class="spin"></div>Generating ADHD-optimised content…</div>';
+            document.getElementById('prog').style.width = '0%';
             try {
-                const res = await fetch(`${API}/adapt`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `Summarise "${chapter}" from ${subject} Grade ${grade} as concise bullet points (max 12). Each bullet should be one short, clear sentence.`, disability_profile: 'adhd', grade, subject, chapter }) });
+                const res = await fetch(`${API}/adapt`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: `Break "${chapter}" from ${subject} Grade ${grade} into 3 sections with checkpoint questions.`,
+                        disability_profile: 'adhd', grade, subject, chapter
+                    })
+                });
                 const data = await res.json();
                 rawContent = data.simplified || data.visual_description || data.tts_script || '';
-                bullets = rawContent.split('\n').map(l => l.replace(/^[-*•\d.]+\s*/, '')).filter(l => l.trim().length > 10).slice(0, 12);
-                renderBullets(chapter);
-            } catch (e) { document.getElementById('content-area').innerHTML = `<p style="color:#ff6b9d">Error: ${e.message}</p>`; }
+                chunks = parseChunks(rawContent);
+                if (!chunks.length || chunks.every(c => !c.bullets.length)) {
+                    document.getElementById('content-area').innerHTML = '<p style="color:#ff6b9d">Could not parse content. Raw response logged to console.</p>';
+                    console.log('RAW LLM OUTPUT:', rawContent);
+                    return;
+                }
+                renderAllChunks(chapter);
+            } catch (e) {
+                document.getElementById('content-area').innerHTML = `<p style="color:#ff6b9d">Error: ${e.message}</p>`;
+            }
         }
 
-        function renderBullets(chapter) {
-            let done = 0;
-            const html = `<div class="chapter-title">🧠 ${chapter}</div>
-    <div class="bullet-list">${bullets.map((b, i) => `<div class="bullet" id="b${i}" onclick="toggleBullet(${i})"><div class="cb" id="cb${i}"></div><div class="bullet-text">${b}</div></div>`).join('')}</div>
-    <div class="actions" id="actions" style="display:none">
-      <button class="action-btn quiz-btn" onclick="startQuiz()">📝 Take Quiz</button>
-      <button class="action-btn flash-btn" onclick="startFlashcards()">🃏 Flashcards</button>
-    </div>`;
-            document.getElementById('content-area').innerHTML = html;
+        // Render all chunks; only first is unlocked
+        function renderAllChunks(chapter) {
+            const area = document.getElementById('content-area');
+            // Helper: convert **bold** to <strong>
+            const md = s => s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            let html = `<div class="chapter-title">🧠 ${chapter}</div>`;
+            chunks.forEach((chunk, ci) => {
+                const locked = ci > 0 ? 'locked' : '';
+                html += `
+                <div class="chunk-card ${locked}" id="chunk-${ci}">
+                    <div class="chunk-header">
+                        <div class="step-badge" id="badge-${ci}">${ci + 1}</div>
+                        <span>${md(chunk.heading)}</span>
+                    </div>
+                    <div class="chunk-body" id="body-${ci}">
+                        <div class="bullet-list">${chunk.bullets.map((b, bi) =>
+                            `<div class="bullet" id="b-${ci}-${bi}" onclick="toggleBullet(${ci},${bi})">
+                                <div class="cb" id="cb-${ci}-${bi}"></div>
+                                <div class="bullet-text">${md(b)}</div>
+                            </div>`
+                        ).join('')}</div>
+                        <button class="ready-btn" id="ready-${ci}" style="display:none" onclick="showCheckpoint(${ci})">✅ I've read this — Check my understanding</button>
+                        <div id="cp-area-${ci}"></div>
+                    </div>
+                </div>`;
+            });
+            html += `<div id="final-actions" style="display:none">
+                <div class="actions">
+                    <button class="action-btn quiz-btn" onclick="startQuiz()">📝 Final Quiz</button>
+                    <button class="action-btn flash-btn" onclick="startFlashcards()">🃏 Flashcards</button>
+                </div>
+            </div>`;
+            area.innerHTML = html;
             updateProg();
         }
 
-        function toggleBullet(i) {
-            const el = document.getElementById('b' + i), cb = document.getElementById('cb' + i);
+        function toggleBullet(ci, bi) {
+            const el = document.getElementById(`b-${ci}-${bi}`);
+            const cb = document.getElementById(`cb-${ci}-${bi}`);
             el.classList.toggle('done');
             cb.textContent = el.classList.contains('done') ? '✓' : '';
+            // Show ready button when all bullets in this chunk are checked
+            const total = chunks[ci].bullets.length;
+            const done = document.querySelectorAll(`#chunk-${ci} .bullet.done`).length;
+            const readyBtn = document.getElementById(`ready-${ci}`);
+            if (readyBtn) readyBtn.style.display = done === total ? 'block' : 'none';
             updateProg();
         }
+
         function updateProg() {
+            const total = chunks.reduce((sum, c) => sum + c.bullets.length, 0);
             const done = document.querySelectorAll('.bullet.done').length;
-            const pct = bullets.length ? Math.round(done / bullets.length * 100) : 0;
+            const pct = total ? Math.round(done / total * 100) : 0;
             document.getElementById('prog').style.width = pct + '%';
-            if (pct === 100) document.getElementById('actions').style.display = 'flex';
+        }
+
+        function showCheckpoint(ci) {
+            document.getElementById(`ready-${ci}`).style.display = 'none';
+            const cp = chunks[ci].checkpoint;
+            const area = document.getElementById(`cp-area-${ci}`);
+            if (!cp) {
+                // No checkpoint parsed — just advance
+                unlockNext(ci);
+                return;
+            }
+            area.innerHTML = `
+                <div class="cp-card" id="cp-card-${ci}">
+                    <div class="cp-label">🎯 Checkpoint ${ci + 1} of ${chunks.length}</div>
+                    <div class="cp-q">${cp.q}</div>
+                    <div class="cp-options">${cp.options.map(opt => {
+                        const letter = opt.charAt(0).toLowerCase();
+                        return `<div class="cp-opt" data-letter="${letter}" onclick="selectCP(this, '${letter}', '${cp.ans}', ${ci})">${opt}</div>`;
+                    }).join('')}</div>
+                    <div class="cp-feedback" id="cp-fb-${ci}"></div>
+                </div>`;
+        }
+
+        function selectCP(el, chosen, ans, ci) {
+            // Lock all options
+            document.querySelectorAll(`#cp-card-${ci} .cp-opt`).forEach(o => {
+                o.classList.add('locked-opt');
+                if (o.dataset.letter === ans) o.classList.add('cp-correct');
+            });
+            const fb = document.getElementById(`cp-fb-${ci}`);
+            if (chosen === ans) {
+                el.classList.add('cp-correct');
+                fb.innerHTML = `✅ Correct! <button class="next-chunk-btn" onclick="unlockNext(${ci})">${ci < chunks.length - 1 ? 'Next Section →' : 'Finish ✓'}</button>`;
+            } else {
+                el.classList.add('cp-wrong');
+                fb.innerHTML = `❌ Not quite — the correct answer is highlighted. <button class="next-chunk-btn" style="background:rgba(255,255,255,.1);border:1px solid var(--br)" onclick="unlockNext(${ci})">Continue anyway →</button>`;
+            }
+        }
+
+        function unlockNext(ci) {
+            // Mark current chunk header as done
+            const badge = document.getElementById(`badge-${ci}`);
+            badge.textContent = '✓';
+            badge.classList.add('done-badge');
+            const nextCi = ci + 1;
+            if (nextCi < chunks.length) {
+                const nextCard = document.getElementById(`chunk-${nextCi}`);
+                nextCard.classList.remove('locked');
+                nextCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                document.getElementById('final-actions').style.display = 'block';
+                document.getElementById('final-actions').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.getElementById('prog').style.width = '100%';
+            }
         }
 
         // ── Quiz ──

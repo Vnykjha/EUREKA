@@ -447,7 +447,7 @@
         </div>
     </div>
     <script>
-        const API = 'http://127.0.0.1:8001', user = localStorage.getItem('eureka_user') || 'Student';
+        const API = 'http://127.0.0.1:8000', user = localStorage.getItem('eureka_user') || 'Student';
         if (!localStorage.getItem('eureka_token')) window.location.href = '/login';
         const SUBS = { low: ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi'], hi: ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'English'] };
         const CH = { 'Mathematics': ['Real Numbers', 'Polynomials', 'Quadratic Equations', 'Triangles', 'Trigonometry', 'Circles', 'Statistics'], 'Science': ['Chemical Reactions', 'Acids Bases Salts', 'Metals Non-metals', 'Carbon Compounds', 'Life Processes', 'Reproduction', 'Light', 'Electricity'], 'Social Science': ['Nationalism in Europe', 'Nationalism in India', 'Resources', 'Power Sharing'], 'English': ['A Letter to God', 'Nelson Mandela', 'Anne Frank'], 'Hindi': ['Surdas', 'Tulsidas'], 'Physics': ['Electric Charges', 'Current Electricity', 'Ray Optics', 'Dual Nature'], 'Chemistry': ['Solid State', 'Solutions', 'Electrochemistry'], 'Biology': ['Reproduction', 'Genetics', 'Evolution'] };

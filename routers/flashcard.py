@@ -11,7 +11,7 @@ from config import settings
 
 router = APIRouter(prefix="/flashcard", tags=["Flashcard"])
 
-llm = ChatGroq(model="llama3-8b-8192", api_key=settings.groq_api_key, temperature=0.5)
+llm = ChatGroq(model="llama-3.1-8b-instant", api_key=settings.groq_api_key, temperature=0.5)
 
 
 class FlashcardRequest(BaseModel):

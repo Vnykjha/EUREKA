@@ -74,7 +74,7 @@
         /* Hero */
         .hero {
             text-align: center;
-            padding: 80px 24px 60px;
+            padding: 28px 24px 12px;
             max-width: 820px;
             margin: 0 auto;
         }
@@ -83,25 +83,31 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(108, 99, 255, .12);
-            border: 1px solid rgba(108, 99, 255, .3);
-            color: #a5a0ff;
-            font-size: .75rem;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .15);
+            color: rgba(255, 255, 255, .6);
+            font-size: .7rem;
             font-weight: 600;
-            padding: 6px 16px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            padding: 6px 18px;
             border-radius: 30px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .hero h1 {
-            font-size: clamp(2rem, 5vw, 3.4rem);
+            font-size: clamp(3rem, 8vw, 5.5rem);
             font-weight: 900;
-            line-height: 1.1;
-            background: linear-gradient(135deg, #fff 40%, #a5a0ff);
+            line-height: 1.05;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 .grad {
+            background: linear-gradient(135deg, #6c63ff, #00d4ff);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
         }
 
         .hero p {
@@ -112,40 +118,10 @@
             margin: 0 auto;
         }
 
-        /* Stats row */
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            flex-wrap: wrap;
-            padding: 36px 24px 0;
-            max-width: 760px;
-            margin: 0 auto;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-n {
-            font-size: 2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #6c63ff, #00d4ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-l {
-            font-size: .75rem;
-            color: rgba(255, 255, 255, .4);
-            margin-top: 4px;
-        }
-
         /* Section label */
         .section-label {
             text-align: center;
-            padding: 56px 24px 28px;
+            padding: 10px 24px 10px;
             font-size: .75rem;
             text-transform: uppercase;
             letter-spacing: .8px;
@@ -153,41 +129,45 @@
             font-weight: 600;
         }
 
-        /* Horizontal disability scroller */
+        /* Coverflow Carousel */
         .scroller-wrap {
-            overflow-x: auto;
-            padding: 0 24px 40px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .scroller-wrap::-webkit-scrollbar {
-            display: none;
+            width: 100%;
+            height: 460px;
+            padding: 0;
+            perspective: 1000px;
+            perspective-origin: 50% 42%;
+            position: relative;
         }
 
         .scroller {
-            display: flex;
-            gap: 18px;
-            width: max-content;
-            padding: 6px 0;
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
         }
 
         .dcard {
-            width: 260px;
-            flex-shrink: 0;
-            background: rgba(255, 255, 255, .04);
-            border: 1px solid var(--br);
-            border-radius: 22px;
-            padding: 28px 22px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 330px;
+            opacity: 0;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 24px;
+            padding: 40px 32px 52px;
             cursor: pointer;
-            transition: all .3s;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            position: relative;
+            align-items: center;
+            text-align: center;
+            gap: 0;
             overflow: hidden;
             text-decoration: none;
             color: inherit;
+            transition: transform .55s cubic-bezier(.25,.46,.45,.94), opacity .45s ease, filter .45s ease, border-color .3s, box-shadow .3s;
+            will-change: transform, opacity, filter;
+            backface-visibility: hidden;
+            transform-origin: center;
         }
 
         .dcard::before {
@@ -196,14 +176,13 @@
             inset: 0;
             opacity: 0;
             transition: opacity .3s;
-            border-radius: 22px;
-            background: radial-gradient(circle at 50% 0%, var(--c) 0%, transparent 70%);
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--c), transparent);
         }
 
-        .dcard:hover {
-            transform: translateY(-6px);
+        .dcard.active {
             border-color: var(--c);
-            box-shadow: 0 16px 48px color-mix(in srgb, var(--c) 25%, transparent);
+            box-shadow: 0 16px 48px color-mix(in srgb, var(--c) 30%, transparent);
         }
 
         .dcard:hover::before {
@@ -211,20 +190,28 @@
         }
 
         .dcard-icon {
-            font-size: 2.8rem;
+            font-size: 3.5rem;
             line-height: 1;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 4px 16px color-mix(in srgb, var(--c) 50%, transparent));
+        }
+
+        .dcard.active .dcard-icon {
+            transform: scale(1.15);
         }
 
         .dcard-name {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 800;
             color: #fff;
+            margin-bottom: 8px;
         }
 
         .dcard-desc {
-            font-size: .82rem;
-            color: rgba(255, 255, 255, .45);
-            line-height: 1.6;
+            font-size: .75rem;
+            color: rgba(255, 255, 255, .6);
+            line-height: 1.4;
+            flex-grow: 1;
         }
 
         .dcard-tag {
@@ -238,17 +225,21 @@
             color: var(--c);
             border-color: color-mix(in srgb, var(--c) 50%, transparent);
             background: color-mix(in srgb, var(--c) 10%, transparent);
+            margin-top: 8px;
         }
 
         .dcard-arrow {
-            margin-top: auto;
-            font-size: .8rem;
-            color: rgba(255, 255, 255, .25);
-            transition: color .2s;
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            font-size: 1rem;
+            opacity: 0;
+            transition: all .3s;
         }
 
         .dcard:hover .dcard-arrow {
-            color: var(--c);
+            opacity: 1;
+            transform: translateX(2px);
         }
 
         /* Features strip */
@@ -297,73 +288,49 @@
     </header>
 
     <div class="hero">
-        <div class="hero-badge">🎓 NCERT · Grades 6–12 · Adaptive Learning</div>
-        <h1>EUREKA — The Smart Learning Platform for All</h1>
-        <p>Every student learns differently. Choose how you learn best below, and EUREKA will adapt every chapter, quiz,
-            and flashcard just for you.</p>
+        <div class="hero-badge">⚡ EUREKA · Inclusive AI Learning</div>
+        <h1>Learn Without<br><span class="grad">Limits</span></h1>
+        <p>AI-powered education that adapts to every mind. Choose your learning profile to begin.</p>
     </div>
 
-    <div class="stats">
-        <div class="stat">
-            <div class="stat-n">5</div>
-            <div class="stat-l">Learning Modes</div>
-        </div>
-        <div class="stat">
-            <div class="stat-n">13+</div>
-            <div class="stat-l">Subject Areas</div>
-        </div>
-        <div class="stat">
-            <div class="stat-n">100+</div>
-            <div class="stat-l">Chapters</div>
-        </div>
-        <div class="stat">
-            <div class="stat-n">AI</div>
-            <div class="stat-l">Powered Quizzes</div>
-        </div>
-    </div>
+    <div class="section-label">Select your learning mode • Hover to browse • Click to enter</div>
 
-    <div class="section-label">Select your learning mode</div>
-
-    <div class="scroller-wrap">
-        <div class="scroller">
-            <a href="/learn/adhd" class="dcard" style="--c:#fbbf24">
+    <div class="scroller-wrap" id="carousel-container">
+        <div class="scroller" id="carousel">
+            <a href="/learn/adhd" class="dcard" style="--c:#fbbf24" data-mode="adhd">
                 <span class="dcard-icon">🧠</span>
                 <span class="dcard-name">ADHD</span>
-                <span class="dcard-desc">Bite-sized bullet points, checkboxes, progress tracking. Built for focus and
-                    momentum.</span>
+                <span class="dcard-desc">Bite-sized bullet points, checkboxes, progress tracking. Built for focus and momentum.</span>
                 <span class="dcard-tag">Structured · Engaging</span>
-                <span class="dcard-arrow">Start learning →</span>
+                <span class="dcard-arrow">→</span>
             </a>
-            <a href="/learn/dyslexia" class="dcard" style="--c:#f87171">
+            <a href="/learn/dyslexia" class="dcard" style="--c:#f87171" data-mode="dyslexia">
                 <span class="dcard-icon">📖</span>
                 <span class="dcard-name">Dyslexia</span>
-                <span class="dcard-desc">OpenDyslexic font, wide spacing, colourful short chunks. Easy on the eyes, easy
-                    to read.</span>
+                <span class="dcard-desc">OpenDyslexic font, wide spacing, colourful short chunks. Easy on the eyes, easy to read.</span>
                 <span class="dcard-tag">Readable · Colourful</span>
-                <span class="dcard-arrow">Start learning →</span>
+                <span class="dcard-arrow">→</span>
             </a>
-            <a href="/learn/visual" class="dcard" style="--c:#60a5fa">
+            <a href="/learn/visual" class="dcard" style="--c:#60a5fa" data-mode="visual">
                 <span class="dcard-icon">👁️</span>
                 <span class="dcard-name">Visual Impairment</span>
-                <span class="dcard-desc">Fully voice-controlled. Hands-free navigation through grades, chapters, and AI
-                    narration.</span>
+                <span class="dcard-desc">Fully voice-controlled. Hands-free navigation through grades, chapters, and AI narration.</span>
                 <span class="dcard-tag">Voice · Hands-free</span>
-                <span class="dcard-arrow">Start learning →</span>
+                <span class="dcard-arrow">→</span>
             </a>
-            <a href="/learn/hearing" class="dcard" style="--c:#34d399">
+            <a href="/learn/hearing" class="dcard" style="--c:#34d399" data-mode="hearing">
                 <span class="dcard-icon">👂</span>
                 <span class="dcard-name">Hearing Impairment</span>
-                <span class="dcard-desc">Visual-first cards, colour-coded sections, no audio dependency. Rich and
-                    clear.</span>
+                <span class="dcard-desc">Visual-first cards, colour-coded sections, no audio dependency. Rich and clear.</span>
                 <span class="dcard-tag">Visual · Clear</span>
-                <span class="dcard-arrow">Start learning →</span>
+                <span class="dcard-arrow">→</span>
             </a>
-            <a href="/learn/cognitive" class="dcard" style="--c:#c084fc">
+            <a href="/learn/cognitive" class="dcard" style="--c:#c084fc" data-mode="cognitive">
                 <span class="dcard-icon">🌿</span>
                 <span class="dcard-name">Cognitive Support</span>
                 <span class="dcard-desc">One concept at a time, giant text, simple language. Go at your own pace.</span>
                 <span class="dcard-tag">Simplified · Patient</span>
-                <span class="dcard-arrow">Start learning →</span>
+                <span class="dcard-arrow">→</span>
             </a>
         </div>
     </div>
@@ -391,6 +358,99 @@
             localStorage.clear();
             window.location.href = '/login';
         }
+
+        // ── Coverflow arc carousel ──
+        const cards = Array.from(document.querySelectorAll('.dcard'));
+
+        const SIDE_X   = 310;   // px shift for ±1 neighbours
+        const SIDE_ROT = 46;    // rotateY° for ±1 neighbours
+        const SIDE_SC  = 0.80;  // scale of ±1 neighbours
+        const FAR_X    = 560;   // px shift for ±2 cards
+        const FAR_ROT  = 68;    // rotateY° for ±2 cards
+        const FAR_SC   = 0.58;  // scale of ±2 cards
+        const DELAY_MS = 0;     // instant hover response
+
+        let current = 0;
+        let hoverTimer = null;
+
+        function applyPositions(centerIdx, fadeIn) {
+            cards.forEach((card, i) => {
+                const off = i - centerIdx;
+                const abs = Math.abs(off);
+                const dir = Math.sign(off);
+                let tx, ry, sc, op, fi, zi;
+
+                if (off === 0) {
+                    tx = 0; ry = 0; sc = 1; op = 1; fi = 'none'; zi = 10;
+                } else if (abs === 1) {
+                    tx = dir * SIDE_X; ry = -dir * SIDE_ROT; sc = SIDE_SC; op = 0.62; fi = 'brightness(.65)'; zi = 8;
+                } else if (abs === 2) {
+                    tx = dir * FAR_X; ry = -dir * FAR_ROT; sc = FAR_SC; op = 0.30; fi = 'brightness(.45)'; zi = 6;
+                } else {
+                    tx = dir * 900; ry = -dir * 90; sc = 0.3; op = 0; fi = 'none'; zi = 0;
+                }
+
+                card.style.zIndex = zi;
+                card.style.transform = `translateX(calc(-50% + ${tx}px)) translateY(-50%) rotateY(${ry}deg) scale(${sc})`;
+                if (fadeIn) {
+                    card.style.opacity = String(op);
+                    card.style.filter = fi;
+                }
+                card.classList.toggle('active', off === 0);
+            });
+        }
+
+        // Initial layout (no opacity — cards start at 0 from CSS)
+        applyPositions(0, false);
+
+        // Staggered fade-in on load
+        cards.forEach((card, i) => {
+            const abs = Math.abs(i - 0);
+            const op = abs === 0 ? 1 : abs === 1 ? 0.62 : abs === 2 ? 0.30 : 0;
+            const fi = abs === 1 ? 'brightness(.65)' : abs === 2 ? 'brightness(.45)' : 'none';
+            setTimeout(() => {
+                card.style.opacity = String(op);
+                card.style.filter = fi;
+            }, 200 + i * 110);
+        });
+
+        // Click: navigate if centered, else bring to center
+        // Each profile has its own dedicated page under /learn/
+        const profilePageMap = {
+            adhd: '/learn/adhd',
+            dyslexia: '/learn/dyslexia',
+            hearing: '/learn/hearing',
+            cognitive: '/learn/cognitive',
+            visual: '/learn/visual'
+        };
+
+        cards.forEach((card, i) => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (i === current) {
+                    const mode = card.dataset.mode;
+                    const dest = profilePageMap[mode];
+                    if (dest) window.location.href = dest + '?t=' + Date.now();
+                } else {
+                    clearTimeout(hoverTimer);
+                    current = i;
+                    applyPositions(i, true);
+                }
+            });
+        });
+
+        // Hover: slide to card
+        cards.forEach((card, i) => {
+            card.addEventListener('mouseenter', () => {
+                if (i === current) return;
+                clearTimeout(hoverTimer);
+                hoverTimer = setTimeout(() => {
+                    current = i;
+                    applyPositions(i, true);
+                }, DELAY_MS);
+            });
+            card.addEventListener('mouseleave', () => clearTimeout(hoverTimer));
+        });
     </script>
 </body>
 

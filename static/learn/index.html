@@ -1087,6 +1087,13 @@
 
   <!-- ═══ SCREEN: HOME ═══ -->
   <div id="s-home" class="screen active">
+    <div style="position:absolute;top:24px;right:24px;z-index:100">
+      <button onclick="signOut()"
+        style="padding:10px 20px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s"
+        onmouseover="this.style.background='rgba(255,255,255,.1)';this.style.color='#fff'"
+        onmouseout="this.style.background='rgba(255,255,255,.07)';this.style.color='rgba(255,255,255,0.7)'">Sign
+        Out</button>
+    </div>
     <div class="home-content">
       <div class="home-badge">⚡ EUREKA · Inclusive AI Learning</div>
       <h1 class="home-title">Learn Without<br /><span class="gr">Limits</span></h1>
@@ -1206,6 +1213,10 @@
             <label>🤖 Ask AI about this chapter</label>
             <textarea id="ask-input" placeholder="e.g. Explain photosynthesis in simple terms…"></textarea>
             <button class="ask-send" id="ask-send" onclick="sendAdaptQuery()">Get Adapted Explanation →</button>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
+            <button id="quiz-btn" onclick="startQuiz()" style="padding: 12px; border-radius: 8px; background: linear-gradient(135deg, rgba(124, 109, 240, .8), rgba(88, 166, 255, .8)); color: #fff; font-weight: 700; font-size: .85rem; transition: all .2s; cursor: pointer; border: none;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">📝 Quiz</button>
+            <button id="flashcard-btn" onclick="startFlashcards()" style="padding: 12px; border-radius: 8px; background: linear-gradient(135deg, rgba(234, 179, 8, .8), rgba(253, 224, 71, .8)); color: #fff; font-weight: 700; font-size: .85rem; transition: all .2s; cursor: pointer; border: none;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🃏 Flashcards</button>
           </div>
         </div>
         <div class="chapter-right">

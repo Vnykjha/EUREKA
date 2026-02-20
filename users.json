@@ -18,5 +18,9 @@
   "Student1": {
     "hash": "050dda0e96a82c9290422f7dfe476dabd7f067fe089e2b6d3d095c28b6a4727b",
     "role": "student"
+  },
+  "Anas": {
+    "hash": "806320024951200cfdb17fc691214ef971646ba783c17d8265db67e79dc2dd17",
+    "role": "student"
   }
 }

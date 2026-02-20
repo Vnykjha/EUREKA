@@ -30,9 +30,9 @@ def retrieve(query: str, k: int = 5, chapter: Optional[str] = None) -> List[Docu
     """
     Search the main content FAISS index.
 
-    If ``chapter`` is provided, tries a filtered search first (chunks tagged
-    with that chapter). Falls back to unfiltered search if no tagged chunks
-    are found, so untagged legacy PDFs still work.
+    If ``chapter`` is provided, returns only chunks tagged with that chapter.
+    Does NOT fall back to unfiltered search when chapter is specified — returning
+    unrelated chunks produces worse output than letting the LLM use its own knowledge.
 
     Args:
         query: The search query string.
@@ -40,15 +40,17 @@ def retrieve(query: str, k: int = 5, chapter: Optional[str] = None) -> List[Docu
         chapter: Optional chapter title to filter results.
 
     Returns:
-        List of relevant Document objects, empty if index does not exist.
+        List of relevant Document objects, empty if index does not exist or no
+        matching chunks found for the given chapter filter.
     """
     index = _load_index(settings.faiss_index_path)
     if index is None:
         return []
     if chapter:
-        filtered = index.similarity_search(query, k=k, filter={"chapter": chapter})
-        if filtered:
-            return filtered
+        # Only return chunks that actually belong to this chapter.
+        # If none are found (PDF not ingested), return [] so the caller can
+        # fall back to LLM parametric knowledge instead of wrong content.
+        return index.similarity_search(query, k=k, filter={"chapter": chapter})
     return index.similarity_search(query, k=k)
 
 

@@ -25,17 +25,20 @@
 
         spline-viewer {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             z-index: 0;
+            transform: translateX(-28%) translateY(-2%) scale(1.32);
+            transform-origin: center center;
         }
 
         .overlay {
             position: fixed;
             inset: 0;
             z-index: 1;
-            background: linear-gradient(135deg, rgba(5, 5, 16, .8) 0%, rgba(5, 5, 16, .4) 100%);
+            background: linear-gradient(90deg, rgba(5,5,16,.15) 0%, rgba(5,5,16,.55) 45%, rgba(5,5,16,.92) 100%);
         }
 
         .layout {
@@ -44,16 +47,12 @@
             min-height: 100vh;
             display: flex;
             align-items: center;
-            padding: 24px;
+            justify-content: flex-end;
+            padding: 24px 36px 24px 24px;
         }
 
         .brand {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 0 48px;
-            max-width: 520px;
+            display: none;
         }
 
         .brand-badge {
@@ -138,20 +137,20 @@
         /* Card */
         .card {
             width: 100%;
-            max-width: 430px;
+            max-width: 800px;
             background: rgba(255, 255, 255, .06);
             border: 1px solid rgba(255, 255, 255, .12);
             border-radius: 24px;
-            padding: 36px 32px;
+            padding: 108px 88px;
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
             box-shadow: 0 24px 80px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .1);
         }
 
         .card-logo {
-            font-size: 1.4rem;
+            font-size: 2.2rem;
             font-weight: 900;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             background: linear-gradient(90deg, #6c63ff, #00d4ff);
             -webkit-background-clip: text;
             background-clip: text;
@@ -159,9 +158,9 @@
         }
 
         .card-sub {
-            font-size: .82rem;
+            font-size: 1.1rem;
             color: rgba(255, 255, 255, .4);
-            margin-bottom: 22px;
+            margin-bottom: 32px;
         }
 
         /* Role toggle */
@@ -169,19 +168,19 @@
             display: flex;
             background: rgba(255, 255, 255, .06);
             border-radius: 14px;
-            padding: 5px;
-            margin-bottom: 22px;
+            padding: 6px;
+            margin-bottom: 26px;
             gap: 4px;
         }
 
         .role-btn {
             flex: 1;
-            padding: 9px 8px;
+            padding: 15px 10px;
             border-radius: 10px;
             border: none;
             background: transparent;
             color: rgba(255, 255, 255, .45);
-            font-size: .85rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all .2s;
@@ -198,8 +197,8 @@
         }
 
         .role-tag {
-            font-size: .65rem;
-            padding: 2px 7px;
+            font-size: .75rem;
+            padding: 2px 9px;
             border-radius: 9px;
             background: rgba(255, 255, 255, .1);
         }
@@ -209,18 +208,18 @@
             display: flex;
             background: rgba(255, 255, 255, .05);
             border-radius: 11px;
-            padding: 4px;
-            margin-bottom: 22px;
+            padding: 5px;
+            margin-bottom: 26px;
         }
 
         .tab {
             flex: 1;
-            padding: 8px;
+            padding: 13px;
             border-radius: 8px;
             border: none;
             background: transparent;
             color: rgba(255, 255, 255, .4);
-            font-size: .82rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all .2s;
@@ -234,15 +233,15 @@
         /* Inputs */
         .field {
             position: relative;
-            margin-bottom: 14px;
+            margin-bottom: 18px;
         }
 
         .field label {
             display: block;
-            font-size: .78rem;
+            font-size: 1rem;
             font-weight: 600;
             color: rgba(255, 255, 255, .6);
-            margin-bottom: 6px;
+            margin-bottom: 9px;
         }
 
         .glow-wrap {
@@ -255,7 +254,7 @@
             position: absolute;
             inset: -1px;
             border-radius: 13px;
-            background: conic-gradient(from var(--angle, 0deg), #6c63ff, #00d4ff, #ff6b9d, #6c63ff);
+            background: linear-gradient(135deg, rgba(108,99,255,.6), rgba(0,212,255,.6));
             opacity: 0;
             transition: opacity .3s;
             z-index: 0;
@@ -263,31 +262,18 @@
 
         .glow-wrap:focus-within::before {
             opacity: 1;
-            animation: spin-border 3s linear infinite;
-        }
-
-        @property --angle {
-            syntax: '<angle>';
-            initial-value: 0deg;
-            inherits: false;
-        }
-
-        @keyframes spin-border {
-            to {
-                --angle: 360deg;
-            }
         }
 
         .glow-wrap input {
             position: relative;
             z-index: 1;
             width: 100%;
-            padding: 11px 15px;
+            padding: 17px 20px;
             background: rgba(255, 255, 255, .07);
             border: 1px solid rgba(255, 255, 255, .12);
             border-radius: 12px;
             color: #fff;
-            font-size: .88rem;
+            font-size: 1.08rem;
             outline: none;
             transition: border-color .2s;
         }
@@ -303,18 +289,18 @@
 
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 18px;
             border-radius: 12px;
             border: none;
             background: linear-gradient(135deg, #6c63ff, #5b8def);
             color: #fff;
-            font-size: .9rem;
+            font-size: 1.15rem;
             font-weight: 700;
             cursor: pointer;
             position: relative;
             overflow: hidden;
             transition: transform .15s, box-shadow .2s;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         .btn:hover {
@@ -425,7 +411,7 @@
         const token = localStorage.getItem('eureka_token');
         const role = localStorage.getItem('eureka_role');
         if (token && role) {
-            window.location.href = role === 'teacher' ? '/teacher' : '/learn';
+            window.location.href = role === 'teacher' ? '/teacher' : '/student';
         }
 
         function setRole(r) {
@@ -466,7 +452,7 @@
                 localStorage.setItem('eureka_token', data.token);
                 localStorage.setItem('eureka_user', data.username);
                 localStorage.setItem('eureka_role', data.role);
-                window.location.href = data.role === 'teacher' ? '/teacher' : '/learn';
+                window.location.href = data.role === 'teacher' ? '/teacher' : '/student';
             } catch (err) {
                 errEl.textContent = err.message;
             } finally {
